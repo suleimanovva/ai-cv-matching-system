@@ -9,9 +9,11 @@ using CvMatchingSystem.Data;
 using CvMatchingSystem.Models;
 using System.IO; 
 using Microsoft.AspNetCore.Http; 
+using Microsoft.AspNetCore.Authorization; // Подключение безопасности
 
 namespace CvMatchingSystem.Controllers
 {
+    [Authorize] // 🔒 ВОТ ОН, ЗАМОК! Теперь весь этот контроллер защищен.
     public class CandidatesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -53,7 +55,6 @@ namespace CvMatchingSystem.Controllers
             {
                 if (ResumeFile != null && ResumeFile.Length > 0)
                 {
-                    // Создаем уникальное имя файла для предотвращения конфликтов
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(ResumeFile.FileName);
                     string uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "resumes");
 
@@ -66,7 +67,6 @@ namespace CvMatchingSystem.Controllers
                         await ResumeFile.CopyToAsync(stream);
                     }
 
-                    // Путь для хранения в базе данных
                     candidate.ResumePath = "resumes/" + fileName;
                 }
 

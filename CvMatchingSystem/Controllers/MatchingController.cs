@@ -5,10 +5,12 @@ using CvMatchingSystem.Services;
 using CvMatchingSystem.Data; 
 using System.Linq;
 using System.Threading.Tasks;
-using System.IO; // ДОБАВЛЕНО: Обязательно для работы с путями (Path, Directory)
+using System.IO; 
+using Microsoft.AspNetCore.Authorization; // 1. ПОДКЛЮЧАЕМ БЕЗОПАСНОСТЬ
 
 namespace CvMatchingSystem.Controllers
 {
+    [Authorize] // 2. ЗАМОК: Закрываем доступ к AI Matcher для гостей
     public class MatchingController : Controller
     {
         private readonly IMatchingService _matchingService;
@@ -48,7 +50,7 @@ namespace CvMatchingSystem.Controllers
                 return View("Index");
             }
 
-            // --- ИСПРАВЛЕННЫЙ БЛОК: ЧТЕНИЕ PDF ---
+            // --- БЛОК: ЧТЕНИЕ PDF ---
             // Формируем полный путь к PDF файлу (папка проекта + wwwroot + путь из базы)
             string fullFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", candidate.ResumePath);
 

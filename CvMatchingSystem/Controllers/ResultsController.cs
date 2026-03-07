@@ -1,14 +1,20 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CvMatchingSystem.Data;
-using System.Threading.Tasks;
-using System.Linq;
-using QuestPDF.Fluent; 
-using QuestPDF.Helpers; 
-using QuestPDF.Infrastructure; 
+using CvMatchingSystem.Models;
+using Microsoft.AspNetCore.Authorization; 
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace CvMatchingSystem.Controllers
 {
+    [Authorize] // Все методы доступны только залогиненным пользователям
     public class ResultsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -16,59 +22,180 @@ namespace CvMatchingSystem.Controllers
         public ResultsController(ApplicationDbContext context)
         {
             _context = context;
-            
-            // МЫ ПРОСТО ОТКЛЮЧАЕМ ЭТУ СТРОКУ:
-            // Это уберет ошибку CS0234 и позволит проекту собраться.
-            // QuestPDF.Settings.License = LicenseKind.Community;
         }
 
+        // GET: Results
         public async Task<IActionResult> Index()
         {
-            var results = await _context.MatchingResults
-                .Include(r => r.Candidate)
-                .Include(r => r.JobPosting)
-                .OrderByDescending(r => r.CreatedDate)
-                .ToListAsync();
-
-            return View(results);
+            var applicationDbContext = _context.MatchingResults.Include(m => m.Candidate).Include(m => m.JobPosting);
+            return View(await applicationDbContext.ToListAsync());
         }
 
-        // Реализация метода из твоей UML-диаграммы (стр. 5)
-        public async Task<IActionResult> Export(int id)
+        // GET: Results/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-            var result = await _context.MatchingResults
-                .Include(r => r.Candidate)
-                .Include(r => r.JobPosting)
-                .FirstOrDefaultAsync(r => r.Id == id);
+            if (id == null) return NotFound();
 
-            if (result == null) return NotFound();
+            var matchingResult = await _context.MatchingResults
+                .Include(m => m.Candidate)
+                .Include(m => m.JobPosting)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            
+            if (matchingResult == null) return NotFound();
+
+            return View(matchingResult);
+        }
+
+        // GET: Results/Create
+        public IActionResult Create()
+        {
+            ViewData["CandidateId"] = new SelectList(_context.Candidates, "Id", "Id");
+            ViewData["JobId"] = new SelectList(_context.JobPostings, "Id", "Id");
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,CandidateId,JobId,Score,CreatedDate")] MatchingResult matchingResult)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(matchingResult);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["CandidateId"] = new SelectList(_context.Candidates, "Id", "Id", matchingResult.CandidateId);
+            ViewData["JobId"] = new SelectList(_context.JobPostings, "Id", "Id", matchingResult.JobId);
+            return View(matchingResult);
+        }
+
+        // GET: Results/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var matchingResult = await _context.MatchingResults.FindAsync(id);
+            if (matchingResult == null) return NotFound();
+            
+            ViewData["CandidateId"] = new SelectList(_context.Candidates, "Id", "Id", matchingResult.CandidateId);
+            ViewData["JobId"] = new SelectList(_context.JobPostings, "Id", "Id", matchingResult.JobId);
+            return View(matchingResult);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,CandidateId,JobId,Score,CreatedDate")] MatchingResult matchingResult)
+        {
+            if (id != matchingResult.Id) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(matchingResult);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!MatchingResultExists(matchingResult.Id)) return NotFound();
+                    else throw;
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["CandidateId"] = new SelectList(_context.Candidates, "Id", "Id", matchingResult.CandidateId);
+            ViewData["JobId"] = new SelectList(_context.JobPostings, "Id", "Id", matchingResult.JobId);
+            return View(matchingResult);
+        }
+
+        // ==========================================
+        // 🛡️ ТОЛЬКО ДЛЯ АДМИНИСТРАТОРА
+        // ==========================================
+
+        // GET: Results/Delete/5
+        [Authorize(Roles = "Admin")] // 👈 ЗАМОК
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var matchingResult = await _context.MatchingResults
+                .Include(m => m.Candidate)
+                .Include(m => m.JobPosting)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            
+            if (matchingResult == null) return NotFound();
+
+            return View(matchingResult);
+        }
+
+        // POST: Results/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")] // 👈 ЗАМОК
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var matchingResult = await _context.MatchingResults.FindAsync(id);
+            if (matchingResult != null)
+            {
+                _context.MatchingResults.Remove(matchingResult);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool MatchingResultExists(int id)
+        {
+            return _context.MatchingResults.Any(e => e.Id == id);
+        }
+
+        // МЕТОД ЭКСПОРТА В PDF
+        public async Task<IActionResult> ExportToPdf(int id)
+        {
+            QuestPDF.Settings.License = LicenseType.Community;
+
+            var matchingResult = await _context.MatchingResults
+                .Include(m => m.Candidate)
+                .Include(m => m.JobPosting)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (matchingResult == null)
+            {
+                return NotFound();
+            }
+
+            string candidateName = matchingResult.Candidate?.FullName ?? "Unknown_Candidate";
+            string jobTitle = matchingResult.JobPosting?.Title ?? "Unknown_Job";
 
             var document = Document.Create(container =>
             {
                 container.Page(page =>
                 {
-                    page.Margin(50);
-                    page.Header().Text("AI MATCH ANALYSIS REPORT").FontSize(22).SemiBold().FontColor(Colors.Blue.Medium);
+                    page.Size(PageSizes.A4);
+                    page.Margin(2, Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(12));
 
-                    page.Content().PaddingVertical(20).Column(col =>
-                    {
-                        col.Item().Text($"Candidate: {result.Candidate?.FullName ?? "N/A"}").FontSize(14);
-                        col.Item().Text($"Job Posting: {result.JobPosting?.Title ?? "N/A"}").FontSize(14);
-                        col.Item().PaddingTop(10).Text($"Match Score: {result.Score}%").FontSize(18).Bold().FontColor(result.Score > 75 ? Colors.Green.Medium : Colors.Orange.Medium);
-                    });
+                    page.Header()
+                        .Text("AI CV Matching Report")
+                        .SemiBold().FontSize(20).FontColor(Colors.Blue.Darken2);
 
-                    page.Footer().AlignCenter().Text(x => {
-                        x.Span("Generated by CvMatchingSystem - Page ");
-                        x.CurrentPageNumber();
-                    });
+                    page.Content()
+                        .PaddingVertical(1, Unit.Centimetre)
+                        .Column(x =>
+                        {
+                            x.Spacing(10);
+                            x.Item().Text($"Candidate Name: {candidateName}").FontSize(14); 
+                            x.Item().Text($"Job Position: {jobTitle}").FontSize(14); 
+                            x.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                            x.Item().Text($"Match Score: {matchingResult.Score}%").Bold().FontSize(16).FontColor(Colors.Green.Darken2);
+                            x.Item().Text($"Report Generated: {matchingResult.CreatedDate:dd/MM/yyyy HH:mm}");
+                        });
                 });
             });
 
             byte[] pdfBytes = document.GeneratePdf();
-
-            // Безопасное формирование имени (ошибка CS8602 исправлена через ?.)
-            string safeFileName = result.Candidate?.FullName?.Replace(" ", "_") ?? "Report";
-            return File(pdfBytes, "application/pdf", $"Match_Report_{safeFileName}.pdf");
+            
+            return File(pdfBytes, "application/pdf", $"Matching_Report_{candidateName}.pdf");
         }
     }
 }
