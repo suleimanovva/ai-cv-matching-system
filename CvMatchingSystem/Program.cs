@@ -1,7 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using CvMatchingSystem.Data;
+using CvMatchingSystem.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<IMatchingService, MatchingService>();
 
 // Подключаем базу данных SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

@@ -1,0 +1,43 @@
+@{
+    ViewData["Title"] = "AI Matching Center";
+}
+
+<div class="text-center">
+    <h1 class="display-4 text-primary">AI Matching Center</h1>
+    <p class="lead">Select a candidate and a job to calculate their compatibility score.</p>
+</div>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 border p-4 shadow-sm rounded bg-light">
+        <form asp-action="Calculate" method="post">
+            <div class="form-group mb-3">
+                <label class="control-label fw-bold">Select Candidate</label>
+                <select name="candidateId" class="form-control" asp-items="ViewBag.Candidates">
+                    <option value="">-- Choose Candidate --</option>
+                </select>
+            </div>
+            <div class="form-group mb-4">
+                <label class="control-label fw-bold">Select Job Posting</label>
+                <select name="jobId" class="form-control" asp-items="ViewBag.Jobs">
+                    <option value="">-- Choose Job --</option>
+                </select>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">Calculate Match!</button>
+            </div>
+        </form>
+
+        @if (ViewBag.Score != null)
+        {
+            <hr />
+            <div class="alert alert-info text-center mt-3 animate__animated animate__fadeIn">
+                <h4>Result for <strong>@ViewBag.CandidateName</strong></h4>
+                <p class="mb-1">Position: <strong>@ViewBag.JobTitle</strong></p>
+                <div class="my-3">
+                    <span class="display-1 fw-bold text-primary">@ViewBag.Score%</span>
+                </div>
+                <p class="small text-muted">Compatibility based on Jaccard Similarity Algorithm</p>
+            </div>
+        }
+    </div>
+</div>
