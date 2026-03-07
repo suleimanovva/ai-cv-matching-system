@@ -1,8 +1,126 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model CvMatchingSystem.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = User.Identity?.IsAuthenticated == true ? "Dashboard" : "Welcome";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@if (User.Identity?.IsAuthenticated == true)
+{
+    @* --- СЕКЦИЯ DASHBOARD (Видят только сотрудники) --- *@
+    <div class="container-fluid mt-4">
+        <h2 class="mb-4 fw-bold text-secondary">
+            <i class="bi bi-speedometer2"></i> System Overview
+        </h2>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-primary text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between px-md-1">
+                            <div>
+                                <h3 class="fw-bold">@Model.TotalCandidates</h3>
+                                <p class="mb-0">Total Candidates</p>
+                            </div>
+                            <div class="align-self-center"><i class="bi bi-people fs-1 opacity-50"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-success text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between px-md-1">
+                            <div>
+                                <h3 class="fw-bold">@Model.TotalJobPostings</h3>
+                                <p class="mb-0">Active Jobs</p>
+                            </div>
+                            <div class="align-self-center"><i class="bi bi-briefcase fs-1 opacity-50"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-info text-white h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between px-md-1">
+                            <div>
+                                <h3 class="fw-bold">@Model.TotalMatches</h3>
+                                <p class="mb-0">AI Matches Done</p>
+                            </div>
+                            <div class="align-self-center"><i class="bi bi-cpu fs-1 opacity-50"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-warning text-dark h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between px-md-1">
+                            <div>
+                                <h3 class="fw-bold">@Model.AverageMatchScore.ToString("F1")%</h3>
+                                <p class="mb-0">Avg. System Score</p>
+                            </div>
+                            <div class="align-self-center"><i class="bi bi-star-fill fs-1 opacity-25"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold"><i class="bi bi-clock-history"></i> Recent Activity</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Candidate</th>
+                                        <th>Position</th>
+                                        <th>Match Score</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.RecentMatches!)
+                                    {
+                                        <tr>
+                                            <td class="fw-bold">@item.Candidate?.FullName</td>
+                                            @* ✅ ИСПРАВЛЕНО: JobPosting вместо Job *@
+                                            <td>@item.JobPosting?.Title</td>
+                                            <td>
+                                                <div class="progress" style="height: 10px; width: 100px;">
+                                                    <div class="progress-bar @(item.Score >= 80 ? "bg-success" : "bg-primary")" 
+                                                         role="progressbar" style="width: @item.Score%"></div>
+                                                </div>
+                                                <small class="text-muted">@item.Score%</small>
+                                            </td>
+                                            <td class="text-muted">@item.CreatedDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    @* --- СЕКЦИЯ LANDING (Видят гости) --- *@
+    <div class="text-center py-5">
+        <h1 class="display-4 fw-bold">CvMatchingSystem</h1>
+        <p class="lead">Advanced AI-powered CV analysis for modern HR teams.</p>
+        <hr class="my-4" style="width: 50%; margin: auto;">
+        <p>Please log in to access the matching tools and analytics dashboard.</p>
+        <a class="btn btn-primary btn-lg px-5 shadow" asp-area="Identity" asp-page="/Account/Login">Get Started</a>
+    </div>
+}
