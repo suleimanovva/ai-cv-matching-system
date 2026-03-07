@@ -29,36 +29,45 @@ public class MatchingController : Controller
         return View();
     }
 
-    // Улучшенный метод расчета
-    [HttpPost]
-    public async Task<IActionResult> Calculate(int? candidateId, int? jobId)
+   [HttpPost]
+public async Task<IActionResult> Calculate(int? candidateId, int? jobId)
+{
+    if (candidateId == null || jobId == null)
     {
-        // 1. Если кнопка нажата, а ID пустые — возвращаем на главную, а не в белый экран
-        if (candidateId == null || jobId == null)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-
-        var candidate = await _context.Candidates.FindAsync(candidateId);
-        var job = await _context.JobPostings.FindAsync(jobId);
-
-        if (candidate == null || job == null) return NotFound();
-
-        // 2. Безопасный вызов сервиса (защита от null)
-        double score = _matchingService.CalculateMatchScore(
-            candidate.FullName ?? "", 
-            job.Requirements ?? ""
-        );
-
-        // 3. Данные для отображения результата
-        ViewBag.Score = score;
-        ViewBag.CandidateName = candidate.FullName;
-        ViewBag.JobTitle = job.Title;
-
-        // 4. Перезагружаем списки (чтобы они не исчезли со страницы)
-        ViewBag.Candidates = new SelectList(await _context.Candidates.ToListAsync(), "Id", "FullName", candidateId);
-        ViewBag.Jobs = new SelectList(await _context.JobPostings.ToListAsync(), "Id", "Title", jobId);
-
-        return View("Index");
+        return RedirectToAction(nameof(Index));
     }
+
+    var candidate = await _context.Candidates.FindAsync(candidateId);
+    var job = await _context.JobPostings.FindAsync(jobId);
+
+    if (candidate == null || job == null) return NotFound();
+
+    // --- НАЧАЛО МАГИИ PDF ---
+
+    // 1. Собираем полный путь к файлу. 
+    // Мы берем путь к папке проекта + заходим в wwwroot + берем путь из базы (resumes/test_candidate.pdf)
+    string fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", candidate.ResumePath ?? "");
+
+    // 2. Просим сервис вытащить текст из этого файла
+    string extractedText = _matchingService.ExtractTextFromPdf(fullPath);
+
+    // 3. Резервный вариант: если PDF пустой или не нашелся, используем имя, чтобы не было ошибки
+    string textToCompare = !string.IsNullOrWhiteSpace(extractedText) 
+                           ? extractedText 
+                           : (candidate.FullName ?? "");
+
+    // 4. Считаем итоговый процент, передавая в метод ВЕСЬ текст из резюме
+    double score = _matchingService.CalculateMatchScore(textToCompare, job.Requirements ?? "");
+
+    // --- КОНЕЦ МАГИИ PDF ---
+
+    ViewBag.Score = score;
+    ViewBag.CandidateName = candidate.FullName;
+    ViewBag.JobTitle = job.Title;
+
+    ViewBag.Candidates = new SelectList(await _context.Candidates.ToListAsync(), "Id", "FullName", candidateId);
+    ViewBag.Jobs = new SelectList(await _context.JobPostings.ToListAsync(), "Id", "Title", jobId);
+
+    return View("Index");
+}
 }
