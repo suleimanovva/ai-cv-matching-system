@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CvMatchingSystem.Data;
 using CvMatchingSystem.Models;
-using System.IO; // ДОБАВЛЕНО: Для работы с файлами и папками
-using Microsoft.AspNetCore.Http; // ДОБАВЛЕНО: Для типа IFormFile
+using System.IO; 
+using Microsoft.AspNetCore.Http; 
 
 namespace CvMatchingSystem.Controllers
 {
@@ -21,35 +21,39 @@ namespace CvMatchingSystem.Controllers
             _context = context;
         }
 
+        // GET: Candidates
         public async Task<IActionResult> Index()
         {
             return View(await _context.Candidates.ToListAsync());
         }
 
+        // GET: Candidates/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
+
             var candidate = await _context.Candidates.FirstOrDefaultAsync(m => m.Id == id);
             if (candidate == null) return NotFound();
+
             return View(candidate);
         }
 
+        // GET: Candidates/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // --- ИСПРАВЛЕННЫЙ POST: Create ---
+        // POST: Candidates/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FullName,ExperienceYears")] Candidate candidate, IFormFile ResumeFile)
         {
             if (ModelState.IsValid)
             {
-                // Если пользователь выбрал файл
                 if (ResumeFile != null && ResumeFile.Length > 0)
                 {
-                    // Создаем уникальное имя (напр. 550e8400.pdf)
+                    // Создаем уникальное имя файла для предотвращения конфликтов
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(ResumeFile.FileName);
                     string uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "resumes");
 
@@ -62,7 +66,7 @@ namespace CvMatchingSystem.Controllers
                         await ResumeFile.CopyToAsync(stream);
                     }
 
-                    // Записываем путь, который будет храниться в базе
+                    // Путь для хранения в базе данных
                     candidate.ResumePath = "resumes/" + fileName;
                 }
 
@@ -73,15 +77,18 @@ namespace CvMatchingSystem.Controllers
             return View(candidate);
         }
 
+        // GET: Candidates/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
+
             var candidate = await _context.Candidates.FindAsync(id);
             if (candidate == null) return NotFound();
+            
             return View(candidate);
         }
 
-        // --- ИСПРАВЛЕННЫЙ POST: Edit ---
+        // POST: Candidates/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,ResumePath,ExperienceYears")] Candidate candidate, IFormFile? ResumeFile)
@@ -92,7 +99,6 @@ namespace CvMatchingSystem.Controllers
             {
                 try
                 {
-                    // Если при редактировании загрузили НОВЫЙ файл
                     if (ResumeFile != null && ResumeFile.Length > 0)
                     {
                         string fileName = Guid.NewGuid().ToString() + Path.GetExtension(ResumeFile.FileName);
@@ -107,7 +113,6 @@ namespace CvMatchingSystem.Controllers
                             await ResumeFile.CopyToAsync(stream);
                         }
 
-                        // Обновляем путь на новый
                         candidate.ResumePath = "resumes/" + fileName;
                     }
 
@@ -124,14 +129,18 @@ namespace CvMatchingSystem.Controllers
             return View(candidate);
         }
 
+        // GET: Candidates/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
+
             var candidate = await _context.Candidates.FirstOrDefaultAsync(m => m.Id == id);
             if (candidate == null) return NotFound();
+
             return View(candidate);
         }
 
+        // POST: Candidates/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
