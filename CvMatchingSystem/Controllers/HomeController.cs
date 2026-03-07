@@ -15,6 +15,16 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
+        // 🧠 УМНЫЙ РЕДИРЕКТ: 
+        // Если пользователь авторизован, не показываем ему Welcome-страницу.
+        // Сразу отправляем его в гущу событий — к списку кандидатов.
+        if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            // "Index" - это метод, "Candidates" - это контроллер
+            return RedirectToAction("Index", "Candidates");
+        }
+
+        // Если это гость — показываем красивый лендинг
         return View();
     }
 

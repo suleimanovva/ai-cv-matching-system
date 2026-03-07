@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CvMatchingSystem.Data;
 using CvMatchingSystem.Models;
+using Microsoft.AspNetCore.Authorization; // 1. Подключаем библиотеку безопасности
 
 namespace CvMatchingSystem.Controllers
 {
+    [Authorize] // 2. ВОТ ОН, ЗАМОК! Закрываем доступ для гостей.
     public class JobPostingsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -50,8 +52,6 @@ namespace CvMatchingSystem.Controllers
         }
 
         // POST: JobPostings/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Title,Requirements,Description,MinScore,CreatedBy")] JobPosting jobPosting)
@@ -82,8 +82,6 @@ namespace CvMatchingSystem.Controllers
         }
 
         // POST: JobPostings/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Requirements,Description,MinScore,CreatedBy")] JobPosting jobPosting)
