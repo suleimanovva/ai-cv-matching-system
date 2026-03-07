@@ -1,9 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using CvMatchingSystem.Data;
 using CvMatchingSystem.Services;
-
+// ДОБАВЛЕНО: Для работы с инфраструктурой QuestPDF
+using QuestPDF.Infrastructure; 
 
 var builder = WebApplication.CreateBuilder(args);
+
+// --- НАСТРОЙКА ЛИЦЕНЗИИ (ОБЯЗАТЕЛЬНО ПО ТЗ) ---
+// Мы используем Community, так как это учебный проект. 
+// Это уберет ту самую ошибку ValidateLicense().
+QuestPDF.Settings.License = LicenseType.Community; 
+// ----------------------------------------------
 
 builder.Services.AddScoped<IMatchingService, MatchingService>();
 
@@ -20,7 +27,6 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
