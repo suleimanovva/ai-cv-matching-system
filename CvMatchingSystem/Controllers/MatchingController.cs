@@ -1,73 +1,85 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using CvMatchingSystem.Data;
+using CvMatchingSystem.Models;
 using CvMatchingSystem.Services;
+using CvMatchingSystem.Data; 
+using System.Linq;
+using System.Threading.Tasks;
+using System.IO; // ДОБАВЛЕНО: Обязательно для работы с путями (Path, Directory)
 
-namespace CvMatchingSystem.Controllers;
-
-public class MatchingController : Controller
+namespace CvMatchingSystem.Controllers
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMatchingService _matchingService;
-
-    public MatchingController(ApplicationDbContext context, IMatchingService matchingService)
+    public class MatchingController : Controller
     {
-        _context = context;
-        _matchingService = matchingService;
+        private readonly IMatchingService _matchingService;
+        private readonly ApplicationDbContext _context; 
+
+        public MatchingController(IMatchingService matchingService, ApplicationDbContext context)
+        {
+            _matchingService = matchingService;
+            _context = context;
+        }
+
+        [HttpGet]
+        public IActionResult Index()
+        {
+            ViewBag.Candidates = new SelectList(_context.Candidates, "Id", "FullName");
+            ViewBag.JobPostings = new SelectList(_context.JobPostings, "Id", "Title");
+            
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Calculate(int candidateId, int jobId)
+        {
+            // 1. Получаем кандидата из базы
+            var candidate = _context.Candidates.Find(candidateId);
+            if (candidate == null || string.IsNullOrEmpty(candidate.ResumePath))
+            {
+                ViewBag.Error = "Candidate not found or has no resume.";
+                return View("Index"); 
+            }
+
+            // 2. Получаем вакансию из базы
+            var job = _context.JobPostings.Find(jobId);
+            if (job == null)
+            {
+                ViewBag.Error = "Job posting not found.";
+                return View("Index");
+            }
+
+            // --- ИСПРАВЛЕННЫЙ БЛОК: ЧТЕНИЕ PDF ---
+            // Формируем полный путь к PDF файлу (папка проекта + wwwroot + путь из базы)
+            string fullFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", candidate.ResumePath);
+
+            // Читаем весь текст из PDF с помощью твоего NLP-метода
+            string extractedResumeText = _matchingService.ExtractTextFromPdf(fullFilePath);
+
+            // Теперь передаем в калькулятор НАСТОЯЩИЙ текст резюме, а не просто ссылку
+            double calculatedScore = _matchingService.CalculateMatchScore(extractedResumeText, job.Requirements ?? "");
+            // --------------------------------------
+
+            // 4. Создаем объект результата и сохраняем его в базу
+            var matchResult = new MatchingResult
+            {
+                CandidateId = candidate.Id,
+                JobId = job.Id,
+                Score = (decimal)calculatedScore 
+            };
+
+            _context.MatchingResults.Add(matchResult);
+            await _context.SaveChangesAsync(); 
+
+            // 5. Передаем данные во View для отображения
+            ViewBag.Score = calculatedScore;
+            ViewBag.CandidateName = candidate.FullName;
+            ViewBag.JobTitle = job.Title;
+
+            // Заново заполняем списки, чтобы форма отображалась корректно
+            ViewBag.Candidates = new SelectList(_context.Candidates, "Id", "FullName");
+            ViewBag.JobPostings = new SelectList(_context.JobPostings, "Id", "Title");
+
+            return View("Index");
+        }
     }
-
-    // Страница выбора
-    public async Task<IActionResult> Index()
-    {
-        var candidates = await _context.Candidates.ToListAsync();
-        var jobs = await _context.JobPostings.ToListAsync();
-
-        ViewBag.Candidates = new SelectList(candidates, "Id", "FullName");
-        ViewBag.Jobs = new SelectList(jobs, "Id", "Title");
-        
-        return View();
-    }
-
-   [HttpPost]
-public async Task<IActionResult> Calculate(int? candidateId, int? jobId)
-{
-    if (candidateId == null || jobId == null)
-    {
-        return RedirectToAction(nameof(Index));
-    }
-
-    var candidate = await _context.Candidates.FindAsync(candidateId);
-    var job = await _context.JobPostings.FindAsync(jobId);
-
-    if (candidate == null || job == null) return NotFound();
-
-    // --- НАЧАЛО МАГИИ PDF ---
-
-    // 1. Собираем полный путь к файлу. 
-    // Мы берем путь к папке проекта + заходим в wwwroot + берем путь из базы (resumes/test_candidate.pdf)
-    string fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", candidate.ResumePath ?? "");
-
-    // 2. Просим сервис вытащить текст из этого файла
-    string extractedText = _matchingService.ExtractTextFromPdf(fullPath);
-
-    // 3. Резервный вариант: если PDF пустой или не нашелся, используем имя, чтобы не было ошибки
-    string textToCompare = !string.IsNullOrWhiteSpace(extractedText) 
-                           ? extractedText 
-                           : (candidate.FullName ?? "");
-
-    // 4. Считаем итоговый процент, передавая в метод ВЕСЬ текст из резюме
-    double score = _matchingService.CalculateMatchScore(textToCompare, job.Requirements ?? "");
-
-    // --- КОНЕЦ МАГИИ PDF ---
-
-    ViewBag.Score = score;
-    ViewBag.CandidateName = candidate.FullName;
-    ViewBag.JobTitle = job.Title;
-
-    ViewBag.Candidates = new SelectList(await _context.Candidates.ToListAsync(), "Id", "FullName", candidateId);
-    ViewBag.Jobs = new SelectList(await _context.JobPostings.ToListAsync(), "Id", "Title", jobId);
-
-    return View("Index");
-}
 }

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CvMatchingSystem.Data;
 using CvMatchingSystem.Models;
+using System.IO; 
+using Microsoft.AspNetCore.Http; 
 
 namespace CvMatchingSystem.Controllers
 {
@@ -45,25 +47,26 @@ namespace CvMatchingSystem.Controllers
         // POST: Candidates/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Candidate candidate)
+        public async Task<IActionResult> Create([Bind("Id,FullName,ExperienceYears")] Candidate candidate, IFormFile ResumeFile)
         {
             if (ModelState.IsValid)
             {
-                // Логика загрузки файла через свойство ResumeFile в модели Candidate
-                if (candidate.ResumeFile != null && candidate.ResumeFile.Length > 0)
+                if (ResumeFile != null && ResumeFile.Length > 0)
                 {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(candidate.ResumeFile.FileName);
-                    string uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/resumes");
-                    
-                    if (!Directory.Exists(uploadDir)) Directory.CreateDirectory(uploadDir);
+                    // Создаем уникальное имя файла для предотвращения конфликтов
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(ResumeFile.FileName);
+                    string uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "resumes");
 
-                    string filePath = Path.Combine(uploadDir, fileName);
+                    if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
+
+                    string filePath = Path.Combine(uploadPath, fileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        await candidate.ResumeFile.CopyToAsync(stream);
+                        await ResumeFile.CopyToAsync(stream);
                     }
 
+                    // Путь для хранения в базе данных
                     candidate.ResumePath = "resumes/" + fileName;
                 }
 
@@ -88,7 +91,7 @@ namespace CvMatchingSystem.Controllers
         // POST: Candidates/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Candidate candidate)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,ResumePath,ExperienceYears")] Candidate candidate, IFormFile? ResumeFile)
         {
             if (id != candidate.Id) return NotFound();
 
@@ -96,18 +99,18 @@ namespace CvMatchingSystem.Controllers
             {
                 try
                 {
-                    if (candidate.ResumeFile != null && candidate.ResumeFile.Length > 0)
+                    if (ResumeFile != null && ResumeFile.Length > 0)
                     {
-                        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(candidate.ResumeFile.FileName);
-                        string uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/resumes");
+                        string fileName = Guid.NewGuid().ToString() + Path.GetExtension(ResumeFile.FileName);
+                        string uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "resumes");
                         
-                        if (!Directory.Exists(uploadDir)) Directory.CreateDirectory(uploadDir);
-
-                        string filePath = Path.Combine(uploadDir, fileName);
+                        if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
+                        
+                        string filePath = Path.Combine(uploadPath, fileName);
 
                         using (var stream = new FileStream(filePath, FileMode.Create))
                         {
-                            await candidate.ResumeFile.CopyToAsync(stream);
+                            await ResumeFile.CopyToAsync(stream);
                         }
 
                         candidate.ResumePath = "resumes/" + fileName;
@@ -147,7 +150,6 @@ namespace CvMatchingSystem.Controllers
             {
                 _context.Candidates.Remove(candidate);
             }
-
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
