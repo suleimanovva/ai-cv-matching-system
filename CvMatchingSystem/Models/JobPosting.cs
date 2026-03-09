@@ -7,6 +7,6 @@ namespace CvMatchingSystem.Models
         public string? Requirements { get; set; }
         public string? Description { get; set; }
         public decimal MinScore { get; set; }
-        public int CreatedBy { get; set; } // Ссылка на ID рекрутера (User)
+        public int CreatedBy { get; set; } 
     }
 }

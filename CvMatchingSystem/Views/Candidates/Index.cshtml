@@ -1,66 +1,72 @@
 @model IEnumerable<CvMatchingSystem.Models.Candidate>
 
 @{
-    ViewData["Title"] = "Candidates List";
+    ViewData["Title"] = "Talent Pool";
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Candidates</h1>
-        <a asp-action="Create" class="btn btn-success">
-            <i class="bi bi-person-plus"></i> Add New Candidate
-        </a>
+<div class="pg-head">
+    <div>
+        <h1 class="pg-title">Candidates</h1>
+        <div class="pg-meta">@Model.Count() profiles registered</div>
     </div>
+    <a asp-action="Create" class="btn-nexus">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Candidate
+    </a>
+</div>
 
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-4">Full Name</th>
-                        <th>Experience</th>
-                        <th>Resume File</th>
-                        <th class="text-end pe-4">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach (var item in Model) {
-                    <tr>
-                        <td class="ps-4">
-                            <strong>@Html.DisplayFor(modelItem => item.FullName)</strong>
-                        </td>
-                        <td>
-                            <span class="badge bg-secondary">@item.ExperienceYears years</span>
-                        </td>
-                        <td>
-                            @if (!string.IsNullOrEmpty(item.ResumePath))
-                            {
-                                <a href="~/@item.ResumePath" target="_blank" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-file-earmark-pdf"></i> View PDF
-                                </a>
-                            }
-                            else
-                            {
-                                <span class="badge bg-danger">No File</span>
-                            }
-                        </td>
-                        <td class="text-end pe-4">
-                            <div class="btn-group" role="group">
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="Edit">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Details">
-                                    <i class="bi bi-info-circle"></i>
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Delete">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
+<div class="card c-table" style="grid-column: span 12;">
+    <div class="ch">
+        <div class="ch-label">System Directory</div>
     </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Experience</th>
+                <th>Resume</th>
+                <th style="text-align:right">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="cn">@item.FullName</div>
+                    </td>
+                    <td>
+                        <span class="chip @(item.ExperienceYears >= 5 ? "chip-g" : "chip-a")">
+                            @item.ExperienceYears years
+                        </span>
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.ResumePath))
+                        {
+                            <a href="~/@item.ResumePath" target="_blank" class="tact">view pdf</a>
+                        }
+                        else
+                        {
+                            <span style="color:var(--t3); font-size:10px; font-family:var(--mono);">missing</span>
+                        }
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:16px; justify-content:flex-end;">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="tact">edit</a>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="tact">details</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="tact" style="color:var(--red) !important">delete</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="4" style="text-align:center; padding: 40px; color: var(--t3);">
+                        No candidates found. Start by adding a new profile.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>

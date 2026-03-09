@@ -2,33 +2,57 @@
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> UserManager
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-people-fill"></i> User Management</h2>
-        <a asp-action="Create" class="btn btn-primary"><i class="bi bi-person-plus"></i> Add New Employee</a>
-    </div>
+@{
+    ViewData["Title"] = "Staff Control";
+}
 
-    <table class="table table-hover shadow-sm bg-white">
-        <thead class="table-dark">
+<div class="pg-head">
+    <div>
+        <h1 class="pg-title">User Management</h1>
+        <div class="pg-meta">@Model.Count() authorized HR accounts</div>
+    </div>
+    <a asp-action="Create" class="btn-nexus">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add New Employee
+    </a>
+</div>
+
+<div class="card c-table">
+    <div class="ch">
+        <div class="ch-label">System Personnel</div>
+    </div>
+    <table>
+        <thead>
             <tr>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Actions</th>
+                <th>Email Address</th>
+                <th>Access Level</th>
+                <th style="text-align:right">Actions</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var user in Model)
             {
                 var roles = await UserManager.GetRolesAsync(user);
+                var primaryRole = roles.FirstOrDefault() ?? "No Role";
                 <tr>
-                    <td>@user.Email</td>
                     <td>
-                        <span class="badge @(roles.Contains("Admin") ? "bg-danger" : "bg-info text-dark")">
-                            @(roles.FirstOrDefault() ?? "No Role")
-                        </span>
+                        <div class="cn">@user.Email</div>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-outline-secondary" disabled>Edit</button>
+                        @if (primaryRole == "Admin")
+                        {
+                            <span class="chip chip-b" style="background:var(--red-bg); color:var(--red);">@primaryRole</span>
+                        }
+                        else
+                        {
+                            <span class="chip chip-a">@primaryRole</span>
+                        }
+                    </td>
+                    <td style="text-align:right">
+                        <div style="display:flex; gap:12px; justify-content:flex-end;">
+                            <a asp-action="Edit" asp-route-id="@user.Id" class="tact">edit</a>
+                            <a asp-action="Delete" asp-route-id="@user.Id" class="tact" style="color:var(--red) !important">revoke</a>
+                        </div>
                     </td>
                 </tr>
             }

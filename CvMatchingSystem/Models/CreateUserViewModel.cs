@@ -6,7 +6,7 @@ namespace CvMatchingSystem.Models
     {
         [Required]
         [EmailAddress]
-        // Добавляем инициализацию, чтобы убрать ошибку CS8618
+      
         public string Email { get; set; } = string.Empty;
 
         [Required]
@@ -15,6 +15,6 @@ namespace CvMatchingSystem.Models
         public string Password { get; set; } = string.Empty;
 
         [Required]
-        public string Role { get; set; } = string.Empty; // "Admin" или "Recruiter"
+        public string Role { get; set; } = string.Empty; 
     }
 }

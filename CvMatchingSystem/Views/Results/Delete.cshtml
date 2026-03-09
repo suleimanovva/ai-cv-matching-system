@@ -1,42 +1,52 @@
 @model CvMatchingSystem.Models.MatchingResult
 
 @{
-    ViewData["Title"] = "Delete Result";
+    ViewData["Title"] = "Delete Record";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card border-danger shadow">
-                <div class="card-header bg-danger text-white">
-                    <h3 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirm Delete</h3>
-                </div>
-                <div class="card-body text-center py-4">
-                    <p class="lead">Are you sure you want to delete this matching result?</p>
-                    <hr />
-                    <dl class="row text-start">
-                        <dt class="col-sm-5 text-muted">Candidate:</dt>
-                        <dd class="col-sm-7 fw-bold">@(Model.Candidate?.FullName ?? "Unknown")</dd>
+<div class="pg-head">
+    <div>
+        <h1 class="pg-title">Remove Analysis Record</h1>
+        <div class="pg-meta">Internal Log ID: @Model.Id</div>
+    </div>
+    <a asp-action="Index" class="tact" style="text-decoration:none;">← Back to History</a>
+</div>
 
-                        <dt class="col-sm-5 text-muted">Job Title:</dt>
-                        <dd class="col-sm-7">@(Model.JobPosting?.Title ?? "N/A")</dd>
+<div class="card" style="max-width: 600px; margin: 0 auto; border-color: var(--red);">
+    <div class="ch" style="background: var(--red-bg); border-bottom-color: var(--red);">
+        <div class="ch-label" style="color: var(--red);">Warning: Destructive Action</div>
+    </div>
 
-                        <dt class="col-sm-5 text-muted">Score:</dt>
-                        <dd class="col-sm-7 text-danger fw-bold">@Model.Score%</dd>
-                    </dl>
-                </div>
-                <div class="card-footer d-flex justify-content-center gap-3">
-                    <form asp-action="Delete">
-                        <input type="hidden" asp-for="Id" />
-                        <button type="submit" class="btn btn-danger px-4 shadow-sm">
-                            <i class="bi bi-trash"></i> Yes, Delete
-                        </button>
-                    </form>
-                    <a asp-action="Index" class="btn btn-secondary px-4">
-                        <i class="bi bi-x-circle"></i> Cancel
-                    </a>
-                </div>
+    <div style="padding: 32px; text-align: center;">
+        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 24px; color: var(--t1);">
+            Are you sure you want to delete this result?
+        </h3>
+
+        <div style="background: var(--s2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 32px; text-align: left;">
+            <div style="margin-bottom: 16px;">
+                <span class="stat-label" style="font-size: 9px;">Candidate</span>
+                <div style="font-size: 16px; font-weight: 700; color: var(--t1);">@(Model.Candidate?.FullName ?? "Unknown Profile")</div>
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+                <span class="stat-label" style="font-size: 9px;">Position</span>
+                <div style="font-size: 14px; color: var(--t2);">@(Model.JobPosting?.Title ?? "N/A")</div>
+            </div>
+
+            <div style="padding-top: 12px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                <span class="stat-label" style="font-size: 9px;">Calculated Score</span>
+                <span style="font-family: var(--mono); font-size: 18px; font-weight: 800; color: var(--red);">@Model.Score%</span>
             </div>
         </div>
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+                <button type="submit" class="btn-nexus" style="background: var(--red); color: #fff; border: none; justify-content: center; padding: 14px; font-size: 14px;">
+                    Confirm Deletion
+                </button>
+                <a asp-action="Index" class="tact" style="text-align: center; padding: 8px; text-decoration: none;">Keep this record</a>
+            </div>
+        </form>
     </div>
 </div>

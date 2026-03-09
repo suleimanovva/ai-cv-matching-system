@@ -1,0 +1,31 @@
+@model Microsoft.AspNetCore.Identity.IdentityUser
+
+@{
+    ViewData["Title"] = "Revoke Access";
+}
+
+<div class="pg-head">
+    <div>
+        <h1 class="pg-title">Revoke Access</h1>
+        <div class="pg-meta">Security Protocol: User Termination</div>
+    </div>
+</div>
+
+<div class="card" style="max-width: 500px; margin: 0 auto; border-color: var(--red);">
+    <div class="ch" style="background: var(--red-bg); border-bottom-color: var(--red);">
+        <div class="ch-label" style="color: var(--red);">Warning: Irreversible Action</div>
+    </div>
+    <div style="padding: 32px; text-align: center;">
+        <p style="color: var(--t2); margin-bottom: 24px;">Are you sure you want to remove <strong>@Model.Email</strong> from the system? This user will lose all access immediately.</p>
+        
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+                <button type="submit" class="btn-nexus" style="background: var(--red); color: white; border: none; width: 100%; justify-content: center;">
+                    Confirm Revoke
+                </button>
+                <a asp-action="Index" class="tact" style="text-align: center; text-decoration: none;">Keep User Access</a>
+            </div>
+        </form>
+    </div>
+</div>
