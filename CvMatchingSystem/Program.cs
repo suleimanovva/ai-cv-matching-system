@@ -6,18 +6,13 @@ using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- НАСТРОЙКА QUESTPDF ---
-// Используем LicenseType, как в твоем успешном билде ранее
 QuestPDF.Settings.License = LicenseType.Community; 
 
-// --- РЕГИСТРАЦИЯ СЕРВИСОВ ---
 builder.Services.AddScoped<IMatchingService, MatchingService>();
 
-// База данных
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Регистрация Identity (ВАЖНО: этот метод требует пакет Microsoft.AspNetCore.Identity.UI)
 builder.Services.AddDefaultIdentity<IdentityUser>(options => {
     options.Password.RequireDigit = false; 
     options.Password.RequiredLength = 6;
@@ -32,7 +27,6 @@ builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-// --- ИНИЦИАЛИЗАЦИЯ БАЗЫ (SEED DATA) ---
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -46,7 +40,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// --- MIDDLEWARE ---
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -58,8 +51,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthentication(); // Проверка "Кто ты?"
-app.UseAuthorization();  // Проверка "Что можно?"
+app.UseAuthentication(); 
+app.UseAuthorization();  
 
 app.MapControllerRoute(
     name: "default",

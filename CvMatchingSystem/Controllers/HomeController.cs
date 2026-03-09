@@ -19,25 +19,21 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        // Если пользователь не авторизован — показываем обычный лендинг (Welcome)
         if (User.Identity == null || !User.Identity.IsAuthenticated)
         {
             return View();
         }
 
-        // Собираем данные для "крутого" Dashboard
         var dashboardData = new DashboardViewModel
         {
             TotalCandidates = await _context.Candidates.CountAsync(),
             TotalJobPostings = await _context.JobPostings.CountAsync(),
             TotalMatches = await _context.MatchingResults.CountAsync(),
             
-            // ✅ Исправлено: Явное приведение decimal к double для AverageMatchScore
             AverageMatchScore = (double)(await _context.MatchingResults.AnyAsync() 
                 ? await _context.MatchingResults.AverageAsync(m => m.Score) 
                 : 0),
 
-            // ✅ Исправлено: Используем JobPosting вместо Job (Navigation Property)
             RecentMatches = await _context.MatchingResults
                 .Include(m => m.Candidate)
                 .Include(m => m.JobPosting) 

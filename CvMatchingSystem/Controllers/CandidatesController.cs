@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Authorization; // Подключение безопа
 
 namespace CvMatchingSystem.Controllers
 {
-    [Authorize] // 🔒 ВОТ ОН, ЗАМОК! Теперь весь этот контроллер защищен.
+    [Authorize] 
     public class CandidatesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -23,14 +23,13 @@ namespace CvMatchingSystem.Controllers
             _context = context;
         }
 
-        // GET: Candidates
+        
         public async Task<IActionResult> Index()
         {
             return View(await _context.Candidates.ToListAsync());
         }
 
-        // GET: Candidates/Details/5
-        public async Task<IActionResult> Details(int? id)
+             public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
@@ -40,13 +39,13 @@ namespace CvMatchingSystem.Controllers
             return View(candidate);
         }
 
-        // GET: Candidates/Create
+        
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Candidates/Create
+       
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FullName,ExperienceYears")] Candidate candidate, IFormFile ResumeFile)
@@ -77,7 +76,7 @@ namespace CvMatchingSystem.Controllers
             return View(candidate);
         }
 
-        // GET: Candidates/Edit/5
+       
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -88,7 +87,6 @@ namespace CvMatchingSystem.Controllers
             return View(candidate);
         }
 
-        // POST: Candidates/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,ResumePath,ExperienceYears")] Candidate candidate, IFormFile? ResumeFile)
@@ -129,7 +127,7 @@ namespace CvMatchingSystem.Controllers
             return View(candidate);
         }
 
-        // GET: Candidates/Delete/5
+       
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -140,7 +138,6 @@ namespace CvMatchingSystem.Controllers
             return View(candidate);
         }
 
-        // POST: Candidates/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

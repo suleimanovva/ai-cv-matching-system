@@ -14,7 +14,7 @@ using QuestPDF.Infrastructure;
 
 namespace CvMatchingSystem.Controllers
 {
-    [Authorize] // Все методы доступны только залогиненным пользователям
+    [Authorize]
     public class ResultsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -24,14 +24,15 @@ namespace CvMatchingSystem.Controllers
             _context = context;
         }
 
-        // GET: Results
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.MatchingResults.Include(m => m.Candidate).Include(m => m.JobPosting);
+            var applicationDbContext = _context.MatchingResults
+                .Include(m => m.Candidate)
+                .Include(m => m.JobPosting)
+                .OrderByDescending(m => m.CreatedDate);
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Results/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -46,73 +47,7 @@ namespace CvMatchingSystem.Controllers
             return View(matchingResult);
         }
 
-        // GET: Results/Create
-        public IActionResult Create()
-        {
-            ViewData["CandidateId"] = new SelectList(_context.Candidates, "Id", "Id");
-            ViewData["JobId"] = new SelectList(_context.JobPostings, "Id", "Id");
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CandidateId,JobId,Score,CreatedDate")] MatchingResult matchingResult)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(matchingResult);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["CandidateId"] = new SelectList(_context.Candidates, "Id", "Id", matchingResult.CandidateId);
-            ViewData["JobId"] = new SelectList(_context.JobPostings, "Id", "Id", matchingResult.JobId);
-            return View(matchingResult);
-        }
-
-        // GET: Results/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var matchingResult = await _context.MatchingResults.FindAsync(id);
-            if (matchingResult == null) return NotFound();
-            
-            ViewData["CandidateId"] = new SelectList(_context.Candidates, "Id", "Id", matchingResult.CandidateId);
-            ViewData["JobId"] = new SelectList(_context.JobPostings, "Id", "Id", matchingResult.JobId);
-            return View(matchingResult);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CandidateId,JobId,Score,CreatedDate")] MatchingResult matchingResult)
-        {
-            if (id != matchingResult.Id) return NotFound();
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(matchingResult);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MatchingResultExists(matchingResult.Id)) return NotFound();
-                    else throw;
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["CandidateId"] = new SelectList(_context.Candidates, "Id", "Id", matchingResult.CandidateId);
-            ViewData["JobId"] = new SelectList(_context.JobPostings, "Id", "Id", matchingResult.JobId);
-            return View(matchingResult);
-        }
-
-        // ==========================================
-        // 🛡️ ТОЛЬКО ДЛЯ АДМИНИСТРАТОРА
-        // ==========================================
-
-        // GET: Results/Delete/5
-        [Authorize(Roles = "Admin")] // 👈 ЗАМОК
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -127,10 +62,9 @@ namespace CvMatchingSystem.Controllers
             return View(matchingResult);
         }
 
-        // POST: Results/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")] // 👈 ЗАМОК
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var matchingResult = await _context.MatchingResults.FindAsync(id);
@@ -143,12 +77,6 @@ namespace CvMatchingSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool MatchingResultExists(int id)
-        {
-            return _context.MatchingResults.Any(e => e.Id == id);
-        }
-
-        // МЕТОД ЭКСПОРТА В PDF
         public async Task<IActionResult> ExportToPdf(int id)
         {
             QuestPDF.Settings.License = LicenseType.Community;
@@ -158,13 +86,10 @@ namespace CvMatchingSystem.Controllers
                 .Include(m => m.JobPosting)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (matchingResult == null)
-            {
-                return NotFound();
-            }
+            if (matchingResult == null) return NotFound();
 
-            string candidateName = matchingResult.Candidate?.FullName ?? "Unknown_Candidate";
-            string jobTitle = matchingResult.JobPosting?.Title ?? "Unknown_Job";
+            string candidateName = matchingResult.Candidate?.FullName ?? "Unknown";
+            string jobTitle = matchingResult.JobPosting?.Title ?? "Unknown";
 
             var document = Document.Create(container =>
             {
@@ -173,29 +98,44 @@ namespace CvMatchingSystem.Controllers
                     page.Size(PageSizes.A4);
                     page.Margin(2, Unit.Centimetre);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(12));
+                    page.DefaultTextStyle(x => x.FontSize(11).FontColor("#1a1714"));
 
-                    page.Header()
-                        .Text("AI CV Matching Report")
-                        .SemiBold().FontSize(20).FontColor(Colors.Blue.Darken2);
-
-                    page.Content()
-                        .PaddingVertical(1, Unit.Centimetre)
-                        .Column(x =>
+                    page.Header().Row(row =>
+                    {
+                        row.RelativeItem().Column(col =>
                         {
-                            x.Spacing(10);
-                            x.Item().Text($"Candidate Name: {candidateName}").FontSize(14); 
-                            x.Item().Text($"Job Position: {jobTitle}").FontSize(14); 
-                            x.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
-                            x.Item().Text($"Match Score: {matchingResult.Score}%").Bold().FontSize(16).FontColor(Colors.Green.Darken2);
-                            x.Item().Text($"Report Generated: {matchingResult.CreatedDate:dd/MM/yyyy HH:mm}");
+                            col.Item().Text("AI MATCHING REPORT").SemiBold().FontSize(20).FontColor("#c17b3c");
+                            col.Item().Text($"{DateTime.Now:MMMM dd, yyyy}").FontSize(10).FontColor(Colors.Grey.Medium);
                         });
+                    });
+
+                    page.Content().PaddingVertical(1, Unit.Centimetre).Column(x =>
+                    {
+                        x.Spacing(15);
+                        x.Item().Row(row => {
+                            row.RelativeItem().Text("Candidate:").SemiBold();
+                            row.RelativeItem().Text(candidateName);
+                        });
+                        x.Item().Row(row => {
+                            row.RelativeItem().Text("Target Position:").SemiBold();
+                            row.RelativeItem().Text(jobTitle);
+                        });
+                        x.Item().PaddingVertical(5).LineHorizontal(1).LineColor("#e2ddd6");
+                        x.Item().Row(row => {
+                            row.RelativeItem().Text("Compatibility Score:").FontSize(14).SemiBold();
+                            row.RelativeItem().Text($"{matchingResult.Score}%").FontSize(18).Bold().FontColor("#c17b3c");
+                        });
+                    });
+
+                    page.Footer().AlignCenter().Text(x =>
+                    {
+                        x.Span("Generated by Nexus AI Matching System").FontSize(9).FontColor(Colors.Grey.Medium);
+                    });
                 });
             });
 
             byte[] pdfBytes = document.GeneratePdf();
-            
-            return File(pdfBytes, "application/pdf", $"Matching_Report_{candidateName}.pdf");
+            return File(pdfBytes, "application/pdf", $"Report_{candidateName.Replace(" ", "_")}.pdf");
         }
     }
 }

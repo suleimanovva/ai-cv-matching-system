@@ -6,7 +6,6 @@ namespace CvMatchingSystem.Services;
 
 public class MatchingService : IMatchingService 
 {
-    // 1. Карта синонимов для унификации навыков
     private readonly Dictionary<string, string> _synonyms = new Dictionary<string, string>
     {
         { "csharp", "c#" },
@@ -51,7 +50,6 @@ public class MatchingService : IMatchingService
         var resumeWords = GetWords(resumeText);
         var jobWords = GetWords(jobRequirements);
 
-        // Считаем пересечение: сколько слов из вакансии есть в резюме
         var intersectCount = jobWords.Intersect(resumeWords).Count();
         var totalRequirementsCount = jobWords.Count;
 
@@ -65,7 +63,6 @@ public class MatchingService : IMatchingService
     {
         if (string.IsNullOrWhiteSpace(text)) return new HashSet<string>();
 
-        // Извлекаем токены, поддерживая спецсимволы тех-стека
         var rawMatches = Regex.Matches(text.ToLower(), @"[\w+#.]+") 
                               .Cast<Match>()
                               .Select(m => m.Value);
@@ -74,12 +71,10 @@ public class MatchingService : IMatchingService
 
         foreach (var word in rawMatches)
         {
-            // Убираем точки в конце (важно для конца предложений)
             var clean = word.TrimEnd('.');
 
             if (clean.Length <= 1 || _stopWords.Contains(clean)) continue;
 
-            // Если есть синоним — используем основной вариант, иначе оставляем как есть
             var finalWord = _synonyms.ContainsKey(clean) ? _synonyms[clean] : clean;
             processedWords.Add(finalWord);
         }

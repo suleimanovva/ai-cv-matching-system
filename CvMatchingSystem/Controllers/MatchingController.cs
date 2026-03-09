@@ -3,14 +3,16 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using CvMatchingSystem.Models;
 using CvMatchingSystem.Services;
 using CvMatchingSystem.Data; 
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO; 
-using Microsoft.AspNetCore.Authorization; // 1. ПОДКЛЮЧАЕМ БЕЗОПАСНОСТЬ
+using Microsoft.AspNetCore.Authorization;
+using System;
 
 namespace CvMatchingSystem.Controllers
 {
-    [Authorize] // 2. ЗАМОК: Закрываем доступ к AI Matcher для гостей
+    [Authorize]
     public class MatchingController : Controller
     {
         private readonly IMatchingService _matchingService;
@@ -23,65 +25,60 @@ namespace CvMatchingSystem.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            ViewBag.Candidates = new SelectList(_context.Candidates, "Id", "FullName");
-            ViewBag.JobPostings = new SelectList(_context.JobPostings, "Id", "Title");
+            var viewModel = new MatchingViewModel
+            {
+                Candidates = await _context.Candidates.ToListAsync(),
+                JobPostings = await _context.JobPostings.ToListAsync()
+            };
             
-            return View();
+            ViewBag.Candidates = new SelectList(viewModel.Candidates, "Id", "FullName");
+            ViewBag.JobPostings = new SelectList(viewModel.JobPostings, "Id", "Title");
+            
+            return View(viewModel);
         }
 
         [HttpPost]
         public async Task<IActionResult> Calculate(int candidateId, int jobId)
         {
-            // 1. Получаем кандидата из базы
-            var candidate = _context.Candidates.Find(candidateId);
-            if (candidate == null || string.IsNullOrEmpty(candidate.ResumePath))
+            var candidate = await _context.Candidates.FindAsync(candidateId);
+            var job = await _context.JobPostings.FindAsync(jobId);
+
+            if (candidate == null || string.IsNullOrEmpty(candidate.ResumePath) || job == null)
             {
-                ViewBag.Error = "Candidate not found or has no resume.";
-                return View("Index"); 
+                return RedirectToAction("Index"); 
             }
 
-            // 2. Получаем вакансию из базы
-            var job = _context.JobPostings.Find(jobId);
-            if (job == null)
-            {
-                ViewBag.Error = "Job posting not found.";
-                return View("Index");
-            }
-
-            // --- БЛОК: ЧТЕНИЕ PDF ---
-            // Формируем полный путь к PDF файлу (папка проекта + wwwroot + путь из базы)
             string fullFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", candidate.ResumePath);
-
-            // Читаем весь текст из PDF с помощью твоего NLP-метода
             string extractedResumeText = _matchingService.ExtractTextFromPdf(fullFilePath);
-
-            // Теперь передаем в калькулятор НАСТОЯЩИЙ текст резюме, а не просто ссылку
             double calculatedScore = _matchingService.CalculateMatchScore(extractedResumeText, job.Requirements ?? "");
-            // --------------------------------------
 
-            // 4. Создаем объект результата и сохраняем его в базу
             var matchResult = new MatchingResult
             {
                 CandidateId = candidate.Id,
                 JobId = job.Id,
-                Score = (decimal)calculatedScore 
+                Score = (decimal)calculatedScore,
+                CreatedDate = DateTime.Now
             };
 
             _context.MatchingResults.Add(matchResult);
             await _context.SaveChangesAsync(); 
 
-            // 5. Передаем данные во View для отображения
-            ViewBag.Score = calculatedScore;
+            ViewBag.Score = Math.Round(calculatedScore, 2);
             ViewBag.CandidateName = candidate.FullName;
             ViewBag.JobTitle = job.Title;
 
-            // Заново заполняем списки, чтобы форма отображалась корректно
-            ViewBag.Candidates = new SelectList(_context.Candidates, "Id", "FullName");
-            ViewBag.JobPostings = new SelectList(_context.JobPostings, "Id", "Title");
+            var viewModel = new MatchingViewModel
+            {
+                Candidates = await _context.Candidates.ToListAsync(),
+                JobPostings = await _context.JobPostings.ToListAsync()
+            };
 
-            return View("Index");
+            ViewBag.Candidates = new SelectList(viewModel.Candidates, "Id", "FullName");
+            ViewBag.JobPostings = new SelectList(viewModel.JobPostings, "Id", "Title");
+
+            return View("Index", viewModel);
         }
     }
 }

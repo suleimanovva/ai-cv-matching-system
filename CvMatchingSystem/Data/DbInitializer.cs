@@ -13,7 +13,7 @@ namespace CvMatchingSystem.Data
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
-            // 1. Создаем роли, если их нет
+            
             string[] roles = { "Admin", "Recruiter" };
             foreach (var role in roles)
             {
@@ -23,7 +23,7 @@ namespace CvMatchingSystem.Data
                 }
             }
 
-            // 2. Создаем твой личный Admin аккаунт
+           
             var adminEmail = "nigaraazamatovna@gmail.com"; 
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
@@ -36,7 +36,7 @@ namespace CvMatchingSystem.Data
                     EmailConfirmed = true
                 } ;
 
-                // Пароль должен быть надежным, но простым 
+                
                 var result = await userManager.CreateAsync(newAdmin, "Nigara_2026!");
                 if (result.Succeeded)
                 {

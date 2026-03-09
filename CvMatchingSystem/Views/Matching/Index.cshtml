@@ -1,44 +1,79 @@
+@model CvMatchingSystem.Models.MatchingViewModel
+
 @{
-    ViewData["Title"] = "AI Matching Center";
+    ViewData["Title"] = "AI Matching Engine";
 }
 
-<div class="text-center">
-    <h1 class="display-4 text-primary">AI Matching Center</h1>
-    <p class="lead">Select a candidate and a job to calculate their compatibility score.</p>
+<div class="pg-head">
+    <div>
+        <h1 class="pg-title">Neural Matcher</h1>
+        <div class="pg-meta">Semantic Analysis & NLP Engine</div>
+    </div>
+    <a asp-controller="Results" asp-action="Index" class="tact" style="text-decoration:none;">View History →</a>
 </div>
 
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6 border p-4 shadow-sm rounded bg-light">
+<div class="card" style="max-width: 800px; margin: 0 auto; overflow: visible;">
+    <div class="ch">
+        <div class="ch-label">Matching Configuration</div>
+    </div>
+
+    <div style="padding: 40px;">
         <form asp-action="Calculate" method="post">
-            <div class="form-group mb-3">
-                <label class="control-label fw-bold">Select Candidate</label>
-                <select name="candidateId" class="form-control" asp-items="ViewBag.Candidates">
-                    <option value="">-- Choose Candidate --</option>
-                </select>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 40px;">
+                
+                <div>
+                    <label class="stat-label" style="display:block; margin-bottom:12px;">Target Candidate</label>
+                    <select name="candidateId" asp-items="ViewBag.Candidates" required style="width: 100%; background: var(--s2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; font-family: var(--ff); font-size: 14px; color: var(--t1); outline: none;">
+                        <option value="" disabled selected>Select from pool...</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="stat-label" style="display:block; margin-bottom:12px;">Target Position</label>
+                    <select name="jobId" asp-items="ViewBag.JobPostings" required style="width: 100%; background: var(--s2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; font-family: var(--ff); font-size: 14px; color: var(--t1); outline: none;">
+                        <option value="" disabled selected>Select active role...</option>
+                    </select>
+                </div>
+
             </div>
-            
-            <div class="form-group mb-4">
-                <label class="control-label fw-bold">Select Job Posting</label>
-                <select name="jobId" class="form-control" asp-items="ViewBag.JobPostings">
-                    <option value="">-- Choose Job --</option>
-                </select>
-            </div>
-            
-            <div class="d-grid">
-                <button type="submit" class="btn btn-primary btn-lg">Calculate Match!</button>
+
+            <div style="text-align: center; margin-bottom: 32px;">
+                <button type="submit" class="btn-nexus" style="width: 100%; justify-content: center; padding: 18px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 10px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    Execute Match Analysis
+                </button>
             </div>
         </form>
 
         @if (ViewBag.Score != null)
         {
-            <hr />
-            <div class="alert alert-info text-center mt-3 animate__animated animate__fadeIn">
-                <h4>Result for <strong>@ViewBag.CandidateName</strong></h4>
-                <p class="mb-1">Position: <strong>@ViewBag.JobTitle</strong></p>
-                <div class="my-3">
-                    <span class="display-1 fw-bold text-primary">@ViewBag.Score%</span>
+            <div style="border-top: 1px solid var(--border); padding-top: 40px; animation: fadeUp 0.5s ease-out;">
+                <div style="text-align: center; margin-bottom: 32px;">
+                    <div class="stat-label" style="margin-bottom: 16px;">Compatibility Score</div>
+                    <div style="font-size: 84px; font-weight: 800; color: var(--p); line-height: 1; letter-spacing: -0.04em;">
+                        @ViewBag.Score<span style="font-size: 32px; font-weight: 400; color: var(--t3);">%</span>
+                    </div>
                 </div>
-                <p class="small text-muted">Compatibility based on Jaccard Similarity Algorithm</p>
+
+                <div class="sbar" style="max-width: 400px; margin: 0 auto 40px;">
+                    <div class="strack" style="height: 6px;">
+                        <div class="sfill" style="width: @ViewBag.Score%; background: var(--p);"></div>
+                    </div>
+                </div>
+
+                <div style="background: var(--s2); border-radius: 12px; padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <span class="stat-label" style="font-size: 9px;">Candidate</span>
+                        <div style="font-weight: 700; color: var(--t1);">@ViewBag.CandidateName</div>
+                    </div>
+                    <div>
+                        <span class="stat-label" style="font-size: 9px;">Position</span>
+                        <div style="font-weight: 700; color: var(--t1);">@ViewBag.JobTitle</div>
+                    </div>
+                    <div style="grid-column: span 2; padding-top: 12px; border-top: 1px solid var(--border);">
+                        <span class="chip chip-b">Jaccard Similarity Algorithm</span>
+                    </div>
+                </div>
             </div>
         }
     </div>

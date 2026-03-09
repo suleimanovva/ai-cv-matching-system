@@ -1,60 +1,66 @@
 @model CvMatchingSystem.Models.Candidate
 
 @{
-    ViewData["Title"] = "Edit Candidate";
+    ViewData["Title"] = "Edit Profile";
 }
 
-<div class="container mt-4">
-    <h1>Edit Candidate</h1>
-    <h4>@Model.FullName</h4>
-    <hr />
-    
-    <div class="row">
-        <div class="col-md-6">
-            <form asp-action="Edit" enctype="multipart/form-data">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="pg-head">
+    <div>
+        <h1 class="pg-title">Edit Candidate</h1>
+        <div class="pg-meta">Candidate Reference: @Model.Id</div>
+    </div>
+    <a asp-action="Index" class="tact" style="text-decoration:none;">← Cancel</a>
+</div>
+
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <div class="ch">
+        <div class="ch-label">Profile Configuration</div>
+    </div>
+
+    <div style="padding: 28px;">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="font-size: 12px; margin-bottom: 20px;"></div>
+            
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ResumePath" />
+
+            <div style="margin-bottom: 24px;">
+                <label asp-for="FullName" class="stat-label" style="display:block; margin-bottom:8px;">Full Name</label>
+                <input asp-for="FullName" style="width: 100%; background: var(--s2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-family: var(--ff); font-size: 14px; outline: none; color: var(--t1);" />
+                <span asp-validation-for="FullName" class="text-danger" style="font-size: 11px;"></span>
+            </div>
+
+            <div style="margin-bottom: 24px; padding: 16px; background: var(--s2); border-radius: 10px; border: 1px solid var(--border);">
+                <span class="stat-label" style="display:block; margin-bottom:12px;">Resume Management</span>
                 
-                <input type="hidden" asp-for="Id" />
-                <input type="hidden" asp-for="ResumePath" />
-
-                <div class="form-group mb-3">
-                    <label asp-for="FullName" class="control-label">Full Name</label>
-                    <input asp-for="FullName" class="form-control" />
-                    <span asp-validation-for="FullName" class="text-danger"></span>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label class="control-label d-block">Current Resume</label>
+                <div style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 12px; color: var(--t2);">Current File:</span>
                     @if (!string.IsNullOrEmpty(Model.ResumePath))
                     {
-                        <a href="~/@Model.ResumePath" target="_blank" class="btn btn-sm btn-outline-info">
-                            <i class="bi bi-file-earmark-pdf"></i> View Current PDF
+                        <a href="~/@Model.ResumePath" target="_blank" class="chip chip-b" style="text-decoration:none;">
+                            view_current_cv.pdf
                         </a>
                     }
                     else
                     {
-                        <span class="badge bg-warning text-dark">No file uploaded yet</span>
+                        <span class="chip chip-a">No file found</span>
                     }
                 </div>
 
-                <div class="form-group mb-3">
-                    <label class="control-label">Upload New Resume (Optional)</label>
-                    <input name="ResumeFile" type="file" class="form-control" accept=".pdf" />
-                    <small class="text-muted">Leave empty to keep the current resume.</small>
-                </div>
+                <label class="stat-label" style="display:block; margin-bottom:8px; font-size: 9px;">Upload Replacement (PDF only)</label>
+                <input name="ResumeFile" type="file" accept=".pdf" style="font-size: 11px; font-family: var(--mono); color: var(--t3);" />
+            </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="ExperienceYears" class="control-label">Years of Experience</label>
-                    <input asp-for="ExperienceYears" class="form-control" type="number" />
-                    <span asp-validation-for="ExperienceYears" class="text-danger"></span>
-                </div>
+            <div style="margin-bottom: 32px;">
+                <label asp-for="ExperienceYears" class="stat-label" style="display:block; margin-bottom:8px;">Years of Experience</label>
+                <input asp-for="ExperienceYears" type="number" style="width: 120px; background: var(--s2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; font-family: var(--mono); font-size: 14px; outline: none;" />
+                <span asp-validation-for="ExperienceYears" class="text-danger" style="font-size: 11px;"></span>
+            </div>
 
-                <div class="form-group mt-4">
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                    <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
-                </div>
-            </form>
-        </div>
+            <button type="submit" class="btn-nexus" style="width: 100%; justify-content: center; padding: 14px; font-size: 13px;">
+                Update Candidate Profile
+            </button>
+        </form>
     </div>
 </div>
 

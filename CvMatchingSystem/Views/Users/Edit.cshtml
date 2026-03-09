@@ -1,0 +1,39 @@
+@model CvMatchingSystem.Models.EditUserViewModel
+
+@{
+    ViewData["Title"] = "Update Permissions";
+}
+
+<div class="pg-head">
+    <div>
+        <h1 class="pg-title">Edit Staff Member</h1>
+        <div class="pg-meta">Modify access levels for @Model.Email</div>
+    </div>
+</div>
+
+<div class="card" style="max-width: 550px; margin: 0 auto;">
+    <div class="ch"><div class="ch-label">Identity & Access</div></div>
+    <div style="padding: 32px;">
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
+            
+            <div class="mb-4">
+                <label asp-for="Email" class="stat-label" style="display:block; margin-bottom:8px;">Account Email</label>
+                <input asp-for="Email" class="form-control" style="background: var(--s2); border-color: var(--border); color: var(--t1);" />
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Role" class="stat-label" style="display:block; margin-bottom:8px;">Assigned Role</label>
+                <select asp-for="Role" class="form-select" style="background: var(--s2); border-color: var(--border); color: var(--t1);">
+                    <option value="Recruiter">Recruiter</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 32px;">
+                <button type="submit" class="btn-nexus" style="justify-content: center;">Save Changes</button>
+                <a asp-action="Index" class="tact" style="text-align: center; text-decoration: none;">Discard</a>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,44 +1,56 @@
 @model CvMatchingSystem.Models.Candidate
 
 @{
-    ViewData["Title"] = "Create Candidate";
+    ViewData["Title"] = "New Profile";
 }
 
-<div class="container mt-4">
-    <h1>Create Candidate</h1>
-    <h4>Add a new candidate for AI analysis</h4>
-    <hr />
-    
-    <div class="row">
-        <div class="col-md-6">
-            <form asp-action="Create" enctype="multipart/form-data">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="pg-head">
+    <div>
+        <h1 class="pg-title">Register Candidate</h1>
+        <div class="pg-meta">Add talent to the AI matching pool</div>
+    </div>
+    <a asp-action="Index" class="tact" style="text-decoration:none;">← Cancel</a>
+</div>
+
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <div class="ch">
+        <div class="ch-label">Candidate Information</div>
+    </div>
+
+    <div style="padding: 28px;">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="font-size: 12px; margin-bottom: 20px;"></div>
+
+            <div style="margin-bottom: 24px;">
+                <label asp-for="FullName" class="stat-label" style="display:block; margin-bottom:8px;">Full Name</label>
+                <input asp-for="FullName" placeholder="e.g. Alex Chen" required style="width: 100%; background: var(--s2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-family: var(--ff); font-size: 14px; outline: none; color: var(--t1);" />
+                <span asp-validation-for="FullName" class="text-danger" style="font-size: 11px;"></span>
+            </div>
+
+            <div style="margin-bottom: 24px; padding: 20px; background: var(--s2); border-radius: 12px; border: 1px solid var(--border);">
+                <label class="stat-label" style="display:block; margin-bottom:12px;">Resume Source (PDF)</label>
                 
-                <div class="form-group mb-3">
-                    <label asp-for="FullName" class="control-label">Full Name</label>
-                    <input asp-for="FullName" class="form-control" placeholder="e.g. Alex Chen" required />
-                    <span asp-validation-for="FullName" class="text-danger"></span>
+                <div style="margin-bottom: 12px;">
+                    <input name="ResumeFile" type="file" accept=".pdf" required style="font-size: 12px; font-family: var(--mono); color: var(--t2);" />
                 </div>
+                
+                <div style="display:flex; gap:8px; align-items:center; opacity: 0.7;">
+                    <div style="width: 4px; height: 4px; border-radius: 50%; background: var(--amber);"></div>
+                    <span style="font-size: 10px; color: var(--t3); font-family: var(--mono);">Max size: 5MB / PDF extraction active</span>
+                </div>
+                <span asp-validation-for="ResumePath" class="text-danger" style="font-size: 11px;"></span>
+            </div>
 
-                <div class="form-group mb-3">
-                    <label class="control-label">Resume (PDF only)</label>
-                    <input name="ResumeFile" type="file" class="form-control" accept=".pdf" required />
-                    <span asp-validation-for="ResumePath" class="text-danger"></span>
-                    <small class="text-muted d-block mt-1">Maximum file size: 5MB. Only PDF files are supported.</small>
-                </div>
+            <div style="margin-bottom: 32px;">
+                <label asp-for="ExperienceYears" class="stat-label" style="display:block; margin-bottom:8px;">Industry Experience (Years)</label>
+                <input asp-for="ExperienceYears" type="number" min="0" required style="width: 120px; background: var(--s2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; font-family: var(--mono); font-size: 14px; outline: none;" />
+                <span asp-validation-for="ExperienceYears" class="text-danger" style="font-size: 11px;"></span>
+            </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="ExperienceYears" class="control-label">Years of Experience</label>
-                    <input asp-for="ExperienceYears" class="form-control" type="number" min="0" required />
-                    <span asp-validation-for="ExperienceYears" class="text-danger"></span>
-                </div>
-
-                <div class="form-group mt-4">
-                    <button type="submit" class="btn btn-primary">Create Candidate</button>
-                    <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
-                </div>
-            </form>
-        </div>
+            <button type="submit" class="btn-nexus" style="width: 100%; justify-content: center; padding: 14px; font-size: 13px;">
+                Create Candidate Profile
+            </button>
+        </form>
     </div>
 </div>
 

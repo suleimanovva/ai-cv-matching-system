@@ -1,51 +1,55 @@
 @model CvMatchingSystem.Models.CreateUserViewModel
 
 @{
-    ViewData["Title"] = "Add New Employee";
+    ViewData["Title"] = "Provision New Account";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow border-0">
-                <div class="card-header bg-primary text-white py-3">
-                    <h4 class="mb-0"><i class="bi bi-person-plus"></i> Add New Employee</h4>
-                </div>
-                <div class="card-body p-4">
-                    <form asp-action="Create" method="post">
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<div class="pg-head">
+    <div>
+        <h1 class="pg-title">Add New Employee</h1>
+        <div class="pg-meta">Create credentials for HR staff members</div>
+    </div>
+    <a asp-action="Index" class="tact" style="text-decoration:none;">← Back to Staff List</a>
+</div>
 
-                        <div class="mb-3">
-                            <label asp-for="Email" class="form-label fw-bold">Email Address</label>
-                            <input asp-for="Email" class="form-control" placeholder="name@company.com" />
-                            <span asp-validation-for="Email" class="text-danger small"></span>
-                        </div>
+<div class="card" style="max-width: 550px; margin: 0 auto;">
+    <div class="ch">
+        <div class="ch-label">Security Credentials</div>
+    </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Password" class="form-label fw-bold">Temporary Password</label>
-                            <input asp-for="Password" type="password" class="form-control" />
-                            <span asp-validation-for="Password" class="text-danger small"></span>
-                        </div>
+    <div style="padding: 32px;">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" style="font-size: 12px; font-family: var(--mono);"></div>
 
-                        <div class="mb-4">
-                            <label asp-for="Role" class="form-label fw-bold">Access Level (Role)</label>
-                            <select asp-for="Role" class="form-select">
-                                <option value="Recruiter">Recruiter (Standard Access)</option>
-                                <option value="Admin">Admin (Full Control)</option>
-                            </select>
-                            <span asp-validation-for="Role" class="text-danger small"></span>
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="bi bi-check-circle"></i> Create Account
-                            </button>
-                            <a asp-action="Index" class="btn btn-light">Cancel</a>
-                        </div>
-                    </form>
-                </div>
+            <div class="mb-4">
+                <label asp-for="Email" class="stat-label" style="display:block; margin-bottom:8px;">Corporate Email</label>
+                <input asp-for="Email" class="form-control" style="background: var(--s2); border-color: var(--border); color: var(--t1);" placeholder="name@cvmatch.com" />
+                <span asp-validation-for="Email" class="text-danger" style="font-size: 11px;"></span>
             </div>
-        </div>
+
+            <div class="mb-4">
+                <label asp-for="Password" class="stat-label" style="display:block; margin-bottom:8px;">Temporary Password</label>
+                <input asp-for="Password" type="password" class="form-control" style="background: var(--s2); border-color: var(--border); color: var(--t1);" />
+                <span asp-validation-for="Password" class="text-danger" style="font-size: 11px;"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Role" class="stat-label" style="display:block; margin-bottom:8px;">Access Permission Level</label>
+                <select asp-for="Role" class="form-select" style="background: var(--s2); border-color: var(--border); color: var(--t1);">
+                    <option value="Recruiter">Recruiter (Search & Match)</option>
+                    <option value="Admin">Administrator (Full Control)</option>
+                </select>
+                <span asp-validation-for="Role" class="text-danger" style="font-size: 11px;"></span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 32px;">
+                <button type="submit" class="btn-nexus" style="justify-content: center; padding: 14px; font-size: 14px;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:8px;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
+                    Create System Account
+                </button>
+                <a asp-action="Index" class="tact" style="text-align: center; padding: 8px; text-decoration: none;">Cancel Provisioning</a>
+            </div>
+        </form>
     </div>
 </div>
 

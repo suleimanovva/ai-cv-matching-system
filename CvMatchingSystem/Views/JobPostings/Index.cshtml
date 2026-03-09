@@ -1,59 +1,65 @@
 @model IEnumerable<CvMatchingSystem.Models.JobPosting>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Job Postings";
 }
 
-<h1>Index</h1>
+<div class="pg-head">
+    <div>
+        <h1 class="pg-title">Open Positions</h1>
+        <div class="pg-meta">@Model.Count() active roles</div>
+    </div>
+    <a asp-action="Create" class="btn-nexus">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Posting
+    </a>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Requirements)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MinScore)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedBy)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Requirements)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MinScore)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedBy)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="card c-table" style="grid-column: span 12;">
+    <div class="ch">
+        <div class="ch-label">Job Listings</div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Position Title</th>
+                <th>Min. Match</th>
+                <th>Core Requirements</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="cn">@item.Title</div>
+                    </td>
+                    <td>
+                        <span class="chip chip-b">
+                            @item.MinScore%
+                        </span>
+                    </td>
+                    <td style="color:var(--t3); font-size:11px; font-family:var(--mono);">
+                        @(item.Requirements?.Length > 60 ? item.Requirements.Substring(0, 57) + "..." : item.Requirements)
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:12px;">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="tact">edit</a>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="tact">details</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="tact" style="color:var(--red)">delete</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="4" style="text-align:center; padding: 40px; color: var(--t3);">
+                        No job postings found. Create your first one to start matching.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
