@@ -57,17 +57,13 @@
         }
         .btn-primary:hover { background: #2c2820; transform: translateY(-1px); }
         
-        .auth-switch { text-align: center; margin-top: 24px; font-size: 13px; display: flex; flex-direction: column; gap: 8px; }
-        .auth-switch a { color: var(--p); font-weight: 600; text-decoration: none; transition: color 0.2s; }
-        .auth-switch a:hover { color: var(--p2); }
+        .restricted-note { text-align: center; margin-top: 30px; font-size: 11px; color: var(--t3); font-family: var(--mono); }
         .text-danger { color: var(--red); font-size: 12px; margin-top: 4px; display: block; }
         .validation-summary-errors { color: var(--red); font-size: 13px; margin-bottom: 20px; font-weight: 500; list-style: none; padding: 0; }
-        .validation-summary-errors ul { padding: 0; list-style: none; margin: 0; }
     </style>
 </head>
 <body>
     <div class="welcome-card">
-        
         <div class="brand-side">
             <div class="logo-wrap">
                 <div class="logo-box">
@@ -80,52 +76,41 @@
                 </div>
                 <div class="logo-text">Nexus</div>
             </div>
-            
             <div class="brand-content">
                 <h1>Secure<br>Workspace.</h1>
             </div>
-            
             <div style="font-size: 10px; color: var(--t3); font-family: var(--mono); margin-top: auto;">
-                © @DateTime.Now.Year OSTIM Technical University Project
+                © 2026 OSTIM Technical University Project
             </div>
         </div>
 
         <div class="form-side">
             <h2 class="form-title">Log In</h2>
-            
             <form id="account" method="post">
                 <div asp-validation-summary="ModelOnly" class="validation-summary-errors" role="alert"></div>
-                
                 <div class="input-group">
-                    <label asp-for="Input.Email" class="input-label"></label>
+                    <label asp-for="Input.Email" class="input-label">Email</label>
                     <input asp-for="Input.Email" class="nexus-input" autocomplete="username" aria-required="true" placeholder="name@company.com" />
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
-                
                 <div class="input-group">
-                    <label asp-for="Input.Password" class="input-label"></label>
-                    <input asp-for="Input.Password" class="nexus-input" autocomplete="current-password" aria-required="true" placeholder="••••••••" />
+                    <label asp-for="Input.Password" class="input-label">Password</label>
+                    <input asp-for="Input.Password" class="nexus-input" autocomplete="current-password" aria-required="true" type="password" placeholder="••••••••" />
                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                 </div>
-                
                 <div style="margin-bottom: 24px;">
                     <label asp-for="Input.RememberMe" style="font-size: 13px; color: var(--t2); cursor: pointer; display: flex; align-items: center; gap: 8px;">
                         <input class="form-check-input" asp-for="Input.RememberMe" style="accent-color: var(--p);" />
-                        @Html.DisplayNameFor(m => m.Input.RememberMe)
+                        Remember me?
                     </label>
                 </div>
-                
                 <button id="login-submit" type="submit" class="btn-primary">Authenticate</button>
             </form>
-
-            <div class="auth-switch">
-                <a id="forgot-password" asp-page="./ForgotPassword">Forgot password?</a>
-                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
+            <div class="restricted-note">
+                PRIVATE SYSTEM // AUTHORIZED ACCESS ONLY
             </div>
         </div>
-        
     </div>
-
     <partial name="_ValidationScriptsPartial" />
 </body>
 </html>

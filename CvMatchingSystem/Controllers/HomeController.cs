@@ -1,58 +1,65 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CvMatchingSystem.Data; 
+using CvMatchingSystem.Data;
 using CvMatchingSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 
-namespace CvMatchingSystem.Controllers;
-
-public class HomeController : Controller
+namespace CvMatchingSystem.Controllers
 {
-    private readonly ILogger<HomeController> _logger;
-    private readonly ApplicationDbContext _context;
-
-    public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+    public class HomeController : Controller
     {
-        _logger = logger;
-        _context = context;
-    }
+        private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
 
-    public async Task<IActionResult> Index()
-    {
-        if (User.Identity == null || !User.Identity.IsAuthenticated)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+        {
+            _logger = logger;
+            _context = context;
+        }
+
+        // 1. ОТКРЫВАЕТСЯ ПЕРВЫМ (Заставка)
+        public IActionResult Index()
         {
             return View();
         }
 
-        var dashboardData = new DashboardViewModel
+        // 2. ОТКРЫВАЕТСЯ ТОЛЬКО ПОСЛЕ LOGIN
+        [Authorize]
+        public async Task<IActionResult> Dashboard()
         {
-            TotalCandidates = await _context.Candidates.CountAsync(),
-            TotalJobPostings = await _context.JobPostings.CountAsync(),
-            TotalMatches = await _context.MatchingResults.CountAsync(),
-            
-            AverageMatchScore = (double)(await _context.MatchingResults.AnyAsync() 
-                ? await _context.MatchingResults.AverageAsync(m => m.Score) 
-                : 0),
+            // Выполняем запросы последовательно, чтобы избежать конфликтов в DbContext
+            var totalCandidates = await _context.Candidates.CountAsync();
+            var totalJobPostings = await _context.JobPostings.CountAsync();
+            var totalMatches = await _context.MatchingResults.CountAsync();
 
-            RecentMatches = await _context.MatchingResults
+            var recentMatches = await _context.MatchingResults
                 .Include(m => m.Candidate)
-                .Include(m => m.JobPosting) 
+                .Include(m => m.JobPosting)
                 .OrderByDescending(m => m.CreatedDate)
                 .Take(5)
-                .ToListAsync()
-        };
+                .ToListAsync();
 
-        return View(dashboardData);
-    }
+            var averageScore = await _context.MatchingResults
+                .Select(m => (double?)m.Score)
+                .AverageAsync() ?? 0.0;
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
+            var dashboardData = new DashboardViewModel
+            {
+                TotalCandidates = totalCandidates,
+                TotalJobPostings = totalJobPostings,
+                TotalMatches = totalMatches,
+                AverageMatchScore = averageScore,
+                RecentMatches = recentMatches
+            };
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(dashboardData);
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
     }
 }

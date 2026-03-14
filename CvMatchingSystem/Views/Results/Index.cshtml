@@ -50,6 +50,7 @@
                     </td>
                     <td>
                         <div style="display:flex; gap:16px; justify-content: flex-end;">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="tact" style="color:var(--p) !important">report</a>
                             <a asp-action="ExportToPdf" asp-route-id="@item.Id" class="tact">pdf</a>
                             @if (User.IsInRole("Admin"))
                             {
@@ -57,14 +58,6 @@
                                    onclick="return confirm('Confirm deletion?');">delete</a>
                             }
                         </div>
-                    </td>
-                </tr>
-            }
-            @if (!Model.Any())
-            {
-                <tr>
-                    <td colspan="5" style="text-align:center; padding: 60px; color: var(--t3); font-family: var(--mono); font-size: 12px;">
-                        No analysis records found in the neural database.
                     </td>
                 </tr>
             }

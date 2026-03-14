@@ -10,32 +10,43 @@
 <body>
 
     <aside class="sidebar">
-        <div class="sidebar-logo">
-            <svg class="logo-svg" viewBox="0 0 16 16" fill="none">
-                <rect x="2" y="2" width="5" height="5" rx="1.2" fill="white" opacity=".9"/>
-                <rect x="9" y="2" width="5" height="5" rx="1.2" fill="white" opacity=".6"/>
-                <rect x="2" y="9" width="5" height="5" rx="1.2" fill="white" opacity=".6"/>
-                <rect x="9" y="9" width="5" height="5" rx="1.2" fill="white" opacity=".35"/>
-            </svg>
-        </div>
+       
+        <a asp-controller="Home" asp-action="Dashboard" class="sidebar-logo-link">
+            <div class="sidebar-logo">
+                <svg class="logo-svg" viewBox="0 0 16 16" fill="none">
+                    <rect x="2" y="2" width="5" height="5" rx="1.2" fill="white" opacity=".9"/>
+                    <rect x="9" y="2" width="5" height="5" rx="1.2" fill="white" opacity=".6"/>
+                    <rect x="2" y="9" width="5" height="5" rx="1.2" fill="white" opacity=".6"/>
+                    <rect x="9" y="9" width="5" height="5" rx="1.2" fill="white" opacity=".35"/>
+                </svg>
+            </div>
+        </a>
 
         <nav class="nav-menu">
-            <a asp-controller="Home" asp-action="Index" class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")">
+           
+            <a asp-controller="Home" asp-action="Dashboard" 
+               class="nav-item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Dashboard" ? "active" : "")">
                 <span class="nav-pip"></span>
                 <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
                 <span class="nav-text">Dashboard</span>
             </a>
-            <a asp-controller="Candidates" asp-action="Index" class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Candidates" ? "active" : "")">
+
+            <a asp-controller="Candidates" asp-action="Index" 
+               class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Candidates" ? "active" : "")">
                 <span class="nav-pip"></span>
                 <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
                 <span class="nav-text">Candidates</span>
             </a>
-            <a asp-controller="JobPostings" asp-action="Index" class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "JobPostings" ? "active" : "")">
+
+            <a asp-controller="JobPostings" asp-action="Index" 
+               class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "JobPostings" ? "active" : "")">
                 <span class="nav-pip"></span>
                 <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></span>
                 <span class="nav-text">Job Postings</span>
             </a>
-            <a asp-controller="Matching" asp-action="Index" class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Matching" ? "active" : "")">
+
+            <a asp-controller="Matching" asp-action="Index" 
+               class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Matching" ? "active" : "")">
                 <span class="nav-pip"></span>
                 <span class="nav-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
                 <span class="nav-text">AI Matching</span>
@@ -43,7 +54,8 @@
             
             <div class="nav-divider"></div>
             
-            <a asp-controller="Results" asp-action="Index" class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Results" ? "active" : "")">
+            <a asp-controller="Results" asp-action="Index" 
+               class="nav-item @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Results" ? "active" : "")">
                 <span class="nav-pip"></span>
                 <span class="nav-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
                 <span class="nav-text">Results History</span>
@@ -64,8 +76,8 @@
         <div class="sidebar-bottom">
             <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
                 <div class="avatar-wrap" style="align-self: center;"><div class="avatar-initials">NS</div></div>
-                <form asp-controller="Account" asp-action="Logout" method="post" style="width: 100%;">
-                    <button type="submit" class="tact" style="width: 100%; border: none; background: transparent; text-align: left; padding-left: 24px; font-size: 11px;">
+                <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" style="width: 100%;">
+                    <button type="submit" class="tact" style="width: 100%; border: none; background: transparent; text-align: left; padding-left: 24px; font-size: 11px; cursor: pointer; color: var(--t2);">
                         Sign Out
                     </button>
                 </form>
@@ -78,7 +90,7 @@
             <div class="topbar-left">
                 <h1 class="page-name">@ViewData["Title"]</h1>
                 <div class="topbar-sep"></div>
-                <div class="breadcrumb-text">@(ViewContext.RouteData.Values["Controller"]?.ToString()?.ToLower() ?? "dashboard")</div>
+                <div class="breadcrumb-text">@(ViewContext.RouteData.Values["Action"]?.ToString()?.ToLower() ?? "overview")</div>
             </div>
             <a asp-controller="JobPostings" asp-action="Create" class="btn-nexus">
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>

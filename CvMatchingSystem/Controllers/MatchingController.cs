@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.IO; 
 using Microsoft.AspNetCore.Authorization;
 using System;
+using System.Text.Json;
 
 namespace CvMatchingSystem.Controllers
 {
@@ -52,22 +53,29 @@ namespace CvMatchingSystem.Controllers
 
             string fullFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", candidate.ResumePath);
             string extractedResumeText = _matchingService.ExtractTextFromPdf(fullFilePath);
-            double calculatedScore = _matchingService.CalculateMatchScore(extractedResumeText, job.Requirements ?? "");
+            
+            var aiResponse = await _matchingService.CalculateMatchScoreAsync(extractedResumeText, job.Requirements ?? "");
 
             var matchResult = new MatchingResult
             {
                 CandidateId = candidate.Id,
                 JobId = job.Id,
-                Score = (decimal)calculatedScore,
+                Score = aiResponse.FinalHybridScore,
+                AiExplanation = aiResponse.Explainability,
+                MatchedSkillsJson = JsonSerializer.Serialize(aiResponse.MatchedSkills),
+                MissingSkillsJson = JsonSerializer.Serialize(aiResponse.MissingSkills),
                 CreatedDate = DateTime.Now
             };
 
             _context.MatchingResults.Add(matchResult);
             await _context.SaveChangesAsync(); 
 
-            ViewBag.Score = Math.Round(calculatedScore, 2);
+            ViewBag.Score = aiResponse.FinalHybridScore;
             ViewBag.CandidateName = candidate.FullName;
             ViewBag.JobTitle = job.Title;
+            ViewBag.Explainability = aiResponse.Explainability;
+            ViewBag.MatchedSkills = aiResponse.MatchedSkills;
+            ViewBag.MissingSkills = aiResponse.MissingSkills;
 
             var viewModel = new MatchingViewModel
             {

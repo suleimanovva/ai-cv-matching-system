@@ -1,7 +1,10 @@
+using System.Threading.Tasks;
+using CvMatchingSystem.Models;
+
 namespace CvMatchingSystem.Services;
 
 public interface IMatchingService
 {
-    double CalculateMatchScore(string resumeText, string jobRequirements);
+    Task<AiMatchingResponse> CalculateMatchScoreAsync(string resumeText, string jobRequirements);
     string ExtractTextFromPdf(string filePath);
 }
