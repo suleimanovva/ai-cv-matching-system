@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 QuestPDF.Settings.License = LicenseType.Community; 
 
-builder.Services.AddScoped<IMatchingService, MatchingService>();
+builder.Services.AddHttpClient<IMatchingService, MatchingService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

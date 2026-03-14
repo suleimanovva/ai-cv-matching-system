@@ -19,6 +19,12 @@ namespace CvMatchingSystem.Models
         public JobPosting? JobPosting { get; set; }
 
         public decimal Score { get; set; }
+
+        public string? AiExplanation { get; set; }
+
+        public string? MatchedSkillsJson { get; set; }
+
+        public string? MissingSkillsJson { get; set; }
         
         public DateTime CreatedDate { get; set; } = DateTime.Now;
     }

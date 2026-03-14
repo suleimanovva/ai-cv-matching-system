@@ -1,183 +1,66 @@
-﻿@model CvMatchingSystem.Models.DashboardViewModel
-
-@{
-    bool isAuthenticated = User.Identity?.IsAuthenticated == true;
-    ViewData["Title"] = isAuthenticated ? "Dashboard" : "Welcome";
-    
-    if (!isAuthenticated)
-    {
-        Layout = null;
-    }
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Welcome";
 }
 
-@if (isAuthenticated)
-{
-    <div class="pg-head">
-        <div class="pg-title">System Overview</div>
-        <div class="pg-meta">@DateTime.Now.ToString("ddd · dd MMM yyyy").ToUpper()</div>
-    </div>
-
-    <div class="bento">
-
-        <div class="card c-stat">
-            <div class="stat-body">
-                <div class="stat-label">Total CVs</div>
-                <div class="stat-value">@Model.TotalCandidates</div>
-                <div class="stat-delta up">Database Sync</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Nexus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --bg: #f0ede8; --s1: #faf8f5; --s2: #f5f2ed; --border: #e2ddd6;
+            --t1: #1a1714; --t3: #9c968e; --p: #c17b3c;
+            --ff: 'Cabinet Grotesk', sans-serif; --mono: 'JetBrains Mono', monospace;
+        }
+        body { background: var(--bg); color: var(--t1); font-family: var(--ff); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; margin: 0; }
+        .welcome-card { background: var(--s1); border: 1px solid var(--border); border-radius: 20px; width: 100%; max-width: 800px; min-height: 480px; display: flex; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.04); }
+        .brand-side { flex: 1; background: var(--s2); padding: 40px; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+        .logo-box { width: 36px; height: 36px; border-radius: 10px; background: var(--p); display: flex; align-items: center; justify-content: center; margin-bottom: auto; }
+        .brand-content h1 { font-size: 40px; font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 16px; }
+        .form-side { flex: 1; padding: 50px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+        .form-title { font-size: 26px; font-weight: 700; margin-bottom: 30px; }
+        .btn-primary { background: var(--t1); color: #fff; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s; display: inline-block; width: 100%; }
+        .btn-primary:hover { background: #2c2820; transform: translateY(-1px); color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="welcome-card">
+        <div class="brand-side">
+            <div class="logo-box">
+                <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
+                    <rect x="2" y="2" width="5" height="5" rx="1.2" fill="white" opacity=".9"/>
+                    <rect x="9" y="2" width="5" height="5" rx="1.2" fill="white" opacity=".6"/>
+                    <rect x="2" y="9" width="5" height="5" rx="1.2" fill="white" opacity=".6"/>
+                    <rect x="9" y="9" width="5" height="5" rx="1.2" fill="white" opacity=".35"/>
+                </svg>
             </div>
-            <div class="stat-accent-bar"><div class="stat-accent-fill" style="width:100%;background:var(--green);"></div></div>
-        </div>
-
-        <div class="card c-stat">
-            <div class="stat-body">
-                <div class="stat-label">Active Postings</div>
-                <div class="stat-value">@Model.TotalJobPostings</div>
-                <div class="stat-delta up">Live Status</div>
+            <div class="brand-content">
+                <h1>Smart CV<br>Matching.</h1>
             </div>
-            <div class="stat-accent-bar"><div class="stat-accent-fill" style="width:100%;background:var(--blue);"></div></div>
-        </div>
-
-        <div class="card c-stat">
-            <div class="stat-body">
-                <div class="stat-label">AI Matches Done</div>
-                <div class="stat-value">@Model.TotalMatches</div>
-                <div class="stat-delta up">Processed</div>
-            </div>
-            <div class="stat-accent-bar"><div class="stat-accent-fill" style="width:100%;background:var(--p);"></div></div>
-        </div>
-
-        <div class="card c-stat">
-            <div class="stat-body">
-                <div class="stat-label">Avg System Score</div>
-                <div class="stat-value">@Model.AverageMatchScore.ToString("F1")<span style="font-size:18px;font-weight:400;color:var(--t3)">%</span></div>
-                <div class="stat-delta up">Accuracy</div>
-            </div>
-            <div class="stat-accent-bar"><div class="stat-accent-fill" style="width:@Model.AverageMatchScore.ToString("F0")%;background:var(--amber);"></div></div>
-        </div>
-
-        <div class="card c-upload">
-            <div class="upload-inner">
-                <div class="upload-icon-box">
-                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                </div>
-                <div>
-                    <div class="upload-title">Register New Candidate</div>
-                    <div class="upload-sub">Upload resumes for automated skill extraction and instant matching.<br/>Results delivered via HuggingFace Inference.</div>
-                </div>
-                <div class="upload-cta">
-                    <a asp-controller="Candidates" asp-action="Create" class="btn-upload">Add Candidate</a>
-                </div>
+            <div style="font-size: 10px; color: var(--t3); font-family: var(--mono);">
+                © @DateTime.Now.Year OSTIM Technical University Project
             </div>
         </div>
 
-        <div class="card c-insights">
-            <div class="ch">
-                <div class="ch-label">System Insights</div>
-                <span class="ch-link">online</span>
-            </div>
-            <div class="ins-item">
-                <div class="ins-marker" style="background:var(--green)"></div>
-                <div class="ins-text"><strong>AI Engine</strong> is active and synchronized with current data.</div>
-            </div>
-            <div class="ins-item">
-                <div class="ins-marker" style="background:var(--p)"></div>
-                <div class="ins-text"><strong>@Model.TotalJobPostings active roles</strong> are ready for candidate evaluation.</div>
-            </div>
-        </div>
-
-        <div class="card c-table" style="grid-column: span 12;">
-            <div class="ch">
-                <div class="ch-label">Recent Activity</div>
-                <a asp-controller="Results" asp-action="Index" class="ch-link" style="text-decoration:none;">View all history →</a>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Candidate</th>
-                        <th>Applied For</th>
-                        <th>Match Score</th>
-                        <th>Date Processed</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.RecentMatches != null && Model.RecentMatches.Any())
-                    {
-                        foreach (var item in Model.RecentMatches)
-                        {
-                            <tr>
-                                <td><div class="cn">@item.Candidate?.FullName</div></td>
-                                <td style="color:var(--t3);font-size:11.5px">@item.JobPosting?.Title</td>
-                                <td>
-                                    <div class="sbar">
-                                        <div class="strack">
-                                            <div class="sfill" style="width:@((int)item.Score)%; background: @(item.Score >= 80 ? "var(--green)" : item.Score >= 50 ? "var(--blue)" : "var(--red)")"></div>
-                                        </div>
-                                        <span class="snum" style="color: @(item.Score >= 80 ? "var(--green)" : item.Score >= 50 ? "var(--blue)" : "var(--red)")">@item.Score.ToString("F0")</span>
-                                    </div>
-                                </td>
-                                <td style="color:var(--t3);font-size:11.5px;font-family:var(--mono);">@item.CreatedDate.ToString("dd MMM yyyy, HH:mm")</td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="4" style="text-align:center; padding: 40px; color: var(--t3);">No recent matches found.</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-}
-else
-{
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>@ViewData["Title"]</title>
-        <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-        <style>
-            :root {
-                --bg: #f0ede8; --s1: #faf8f5; --s2: #f5f2ed; --s3: #ede9e2;
-                --border: #e2ddd6; --t1: #1a1714; --t2: #5c5650; --t3: #9c968e;
-                --p: #c17b3c; --ff: 'Cabinet Grotesk', sans-serif; --mono: 'JetBrains Mono', monospace;
+        <div class="form-side">
+            <h2 class="form-title">Welcome back</h2>
+            
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a class="btn-primary" asp-controller="Home" asp-action="Dashboard">Go to Workspace</a>
             }
-            *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-            body { background: var(--bg); color: var(--t1); font-family: var(--ff); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-            .welcome-card { background: var(--s1); border: 1px solid var(--border); border-radius: 20px; width: 100%; max-width: 800px; min-height: 480px; display: flex; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.04); }
-            .brand-side { flex: 1; background: var(--s2); padding: 40px; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
-            .logo-wrap { display: flex; align-items: center; margin-bottom: auto; }
-            .logo-box { width: 36px; height: 36px; border-radius: 10px; background: var(--p); display: flex; align-items: center; justify-content: center; }
-            .brand-content h1 { font-size: 40px; font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 16px; }
-            .form-side { flex: 1; padding: 50px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
-            .form-title { font-size: 26px; font-weight: 700; margin-bottom: 30px; letter-spacing: -0.01em; }
-            .btn-primary { width: 100%; background: var(--t1); color: #fff; border: none; border-radius: 8px; padding: 14px; font-family: var(--ff); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
-            .btn-primary:hover { background: #2c2820; transform: translateY(-1px); color: #fff; }
-        </style>
-    </head>
-    <body>
-        <div class="welcome-card">
-            <div class="brand-side">
-                <div class="logo-wrap">
-                    <div class="logo-box">
-                        <svg width="20" height="20" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1.2" fill="white" opacity=".9"/><rect x="9" y="2" width="5" height="5" rx="1.2" fill="white" opacity=".6"/><rect x="2" y="9" width="5" height="5" rx="1.2" fill="white" opacity=".6"/><rect x="9" y="9" width="5" height="5" rx="1.2" fill="white" opacity=".35"/></svg>
-                    </div>
-                </div>
-                <div class="brand-content">
-                    <h1>Smart CV<br>Matching.</h1>
-                </div>
-                <div style="font-size: 10px; color: var(--t3); font-family: var(--mono);">
-                    © @DateTime.Now.Year OSTIM Technical University Project
-                </div>
-            </div>
-            <div class="form-side">
-                <h2 class="form-title">Welcome back</h2>
-                <a class="btn-primary" asp-area="Identity" asp-page="/Account/Login">Sign In</a>
-            </div>
+            else
+            {
+                <a class="btn-primary" 
+                   asp-area="Identity" 
+                   asp-page="/Account/Login" 
+                   asp-route-returnUrl="@Url.Action("Dashboard", "Home")">Sign In</a>
+            }
         </div>
-    </body>
-    </html>
-}
+    </div>
+</body>
+</html>

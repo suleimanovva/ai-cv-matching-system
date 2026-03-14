@@ -1,0 +1,73 @@
+@model CvMatchingSystem.Models.MatchingResult
+
+@{
+    ViewData["Title"] = "AI Matching Report";
+}
+
+<div class="pg-head">
+    <div>
+        <h1 class="pg-title">Analysis Report</h1>
+        <div class="pg-meta">Internal ID: #@Model.Id | @Model.CreatedDate.ToString("f")</div>
+    </div>
+    <a asp-action="Index" class="tact" style="text-decoration:none;">← Back to History</a>
+</div>
+
+<div class="card" style="max-width: 900px; margin: 0 auto; padding: 40px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 30px;">
+        <div>
+            <div class="stat-label">Candidate Name</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--t1);">@Model.Candidate?.FullName</div>
+        </div>
+        <div style="text-align: right;">
+            <div class="stat-label">Target Position</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--p);">@Model.JobPosting?.Title</div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 50px;">
+        <div class="stat-label" style="margin-bottom: 10px;">Ensemble Match Score</div>
+        <div style="font-size: 100px; font-weight: 800; color: @(Model.Score >= 70 ? "var(--green)" : "var(--p)"); line-height: 1;">
+            @Model.Score.ToString("F2")<span style="font-size: 40px;">%</span>
+        </div>
+        <div style="margin-top: 15px; font-family: var(--mono); font-size: 11px; color: var(--t3);">
+            HYBRID CALCULATION: (AI_SEMANTIC * 0.4) + (COSINE_SIMILARITY * 0.3) + (PDF_EXPERIENCE * 0.3)
+        </div>
+    </div>
+
+    <div style="background: var(--s2); border-radius: 12px; padding: 30px; margin-bottom: 30px; border-left: 4px solid var(--p);">
+        <div class="stat-label" style="margin-bottom: 15px; color: var(--p); text-transform: uppercase; letter-spacing: 1px;">AI Neural Verdict</div>
+        <div style="color: var(--t1); line-height: 1.8; font-size: 15px;">
+            @Model.AiExplanation
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        <div style="border: 1px solid var(--border); border-radius: 12px; padding: 25px;">
+            <div class="stat-label" style="margin-bottom: 20px; color: var(--green);">Verified Skills</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                @if (!string.IsNullOrEmpty(Model.MatchedSkillsJson))
+                {
+                    var skills = System.Text.Json.JsonSerializer.Deserialize<List<string>>(Model.MatchedSkillsJson) ?? new List<string>();
+                    foreach (var skill in skills)
+                    {
+                        <span style="background: rgba(46, 204, 113, 0.1); color: var(--green); padding: 5px 12px; border-radius: 6px; font-size: 12px; border: 1px solid rgba(46, 204, 113, 0.2);">@skill</span>
+                    }
+                }
+            </div>
+        </div>
+
+        <div style="border: 1px solid var(--border); border-radius: 12px; padding: 25px;">
+            <div class="stat-label" style="margin-bottom: 20px; color: var(--red);">Skill Gaps</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                @if (!string.IsNullOrEmpty(Model.MissingSkillsJson))
+                {
+                    var skills = System.Text.Json.JsonSerializer.Deserialize<List<string>>(Model.MissingSkillsJson) ?? new List<string>();
+                    foreach (var skill in skills)
+                    {
+                        <span style="background: rgba(231, 76, 60, 0.1); color: var(--red); padding: 5px 12px; border-radius: 6px; font-size: 12px; border: 1px solid rgba(231, 76, 60, 0.2);">@skill</span>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
