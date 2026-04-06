@@ -9,7 +9,7 @@ using CvMatchingSystem.Data;
 using CvMatchingSystem.Models;
 using System.IO; 
 using Microsoft.AspNetCore.Http; 
-using Microsoft.AspNetCore.Authorization; // Подключение безопасности
+using Microsoft.AspNetCore.Authorization;
 
 namespace CvMatchingSystem.Controllers
 {
@@ -23,13 +23,12 @@ namespace CvMatchingSystem.Controllers
             _context = context;
         }
 
-        
         public async Task<IActionResult> Index()
         {
             return View(await _context.Candidates.ToListAsync());
         }
 
-             public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
@@ -39,16 +38,14 @@ namespace CvMatchingSystem.Controllers
             return View(candidate);
         }
 
-        
         public IActionResult Create()
         {
             return View();
         }
 
-       
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FullName,ExperienceYears")] Candidate candidate, IFormFile ResumeFile)
+        public async Task<IActionResult> Create([Bind("Id,FullName,ExperienceYears,Gender,Age")] Candidate candidate, IFormFile ResumeFile)
         {
             if (ModelState.IsValid)
             {
@@ -76,7 +73,6 @@ namespace CvMatchingSystem.Controllers
             return View(candidate);
         }
 
-       
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -89,7 +85,7 @@ namespace CvMatchingSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,ResumePath,ExperienceYears")] Candidate candidate, IFormFile? ResumeFile)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,ResumePath,ExperienceYears,Gender,Age")] Candidate candidate, IFormFile? ResumeFile)
         {
             if (id != candidate.Id) return NotFound();
 
@@ -127,7 +123,6 @@ namespace CvMatchingSystem.Controllers
             return View(candidate);
         }
 
-       
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();

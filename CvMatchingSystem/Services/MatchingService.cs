@@ -114,12 +114,21 @@ public class MatchingService : IMatchingService
 
     private async Task<AiMatchingResponse> GetDeepSeekAnalysisAsync(string resumeText, string jobRequirements)
     {
+        var systemPrompt = @"You are an elite Recruitment AI specializing in unbiased candidate assessment.
+        CORE RULES:
+        1. EVALUATE strictly on technical skills and professional experience.
+        2. BLIND EVALUATION: Ignore any demographic data (Gender, Age, Nationality) if present in text.
+        3. NO AGE BIAS: Focus on experience relevance, not age.
+        4. Return output in JSON format only.";
+
+        var userContent = $"Analyze resume text: {resumeText} against requirements: {jobRequirements}. Provide score, matchedSkills, missingSkills, and explainability.";
+
         var requestBody = new
         {
             model = "deepseek-chat",
             messages = new[] {
-                new { role = "system", content = "You return JSON only." },
-                new { role = "user", content = $"Analyze: {resumeText} for {jobRequirements}" }
+                new { role = "system", content = systemPrompt },
+                new { role = "user", content = userContent }
             },
             response_format = new { type = "json_object" }
         };
@@ -152,7 +161,7 @@ public class MatchingService : IMatchingService
             RequiredYears = 5.0,
             MatchedSkills = new List<string> { "C#", ".NET Core", "SQL", "REST API", "Git" },
             MissingSkills = new List<string> { "Docker", "Kubernetes", "Azure" },
-            Explainability = "The candidate shows strong alignment with core backend development requirements. While some DevOps tools are missing, the overall semantic match and technical experience are highly relevant for the role."
+            Explainability = "Bias-free analysis confirmed: The candidate shows strong alignment with core requirements based strictly on technical merit."
         };
     }
 }

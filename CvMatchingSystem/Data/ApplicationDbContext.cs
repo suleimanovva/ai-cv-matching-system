@@ -15,7 +15,7 @@ namespace CvMatchingSystem.Data
         public DbSet<JobPosting> JobPostings { get; set; }
         public DbSet<MatchingResult> MatchingResults { get; set; }
         
-        
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

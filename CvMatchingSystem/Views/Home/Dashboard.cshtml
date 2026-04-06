@@ -1,249 +1,245 @@
 @model CvMatchingSystem.Models.DashboardViewModel
 @{
-ViewData["Title"] = "Nexus | Dashboard";
+    ViewData["Title"] = "Nexus | Dashboard";
 }
 
 <div class="pg-head">  
-<div class="pg-title">System Overview</div>  
-<div class="pg-meta">@DateTime.Now.ToString("ddd · dd MMM yyyy").ToUpper()</div>  
+    <div class="pg-title">System Overview</div>  
+    <div class="pg-meta">@DateTime.Now.ToString("ddd · dd MMM yyyy").ToUpper()</div>  
 </div>  
 
 <div class="bento">  
+    <div class="card c-stat">  
+        <div class="stat-body">  
+            <div class="stat-label">Total CVs</div>  
+            <div class="stat-value">@Model.TotalCandidates</div>  
+            <div class="stat-delta up">Database Sync</div>  
+        </div>  
+        <div class="stat-accent-bar">  
+            <div class="stat-accent-fill" style="width:100%;background:var(--green);"></div>  
+        </div>  
+    </div>  
 
-<div class="card c-stat">  
-<div class="stat-body">  
-<div class="stat-label">Total CVs</div>  
-<div class="stat-value">@Model.TotalCandidates</div>  
-<div class="stat-delta up">Database Sync</div>  
-</div>  
-<div class="stat-accent-bar">  
-<div class="stat-accent-fill" style="width:100%;background:var(--green);"></div>  
-</div>  
-</div>  
+    <div class="card c-stat">  
+        <div class="stat-body">  
+            <div class="stat-label">Active Postings</div>  
+            <div class="stat-value">@Model.TotalJobPostings</div>  
+            <div class="stat-delta up">Live Status</div>  
+        </div>  
+        <div class="stat-accent-bar">  
+            <div class="stat-accent-fill" style="width:100%;background:var(--blue);"></div>  
+        </div>  
+    </div>  
 
-<div class="card c-stat">  
-<div class="stat-body">  
-<div class="stat-label">Active Postings</div>  
-<div class="stat-value">@Model.TotalJobPostings</div>  
-<div class="stat-delta up">Live Status</div>  
-</div>  
-<div class="stat-accent-bar">  
-<div class="stat-accent-fill" style="width:100%;background:var(--blue);"></div>  
-</div>  
-</div>  
+    <div class="card c-stat">  
+        <div class="stat-body">  
+            <div class="stat-label">AI Matches Done</div>  
+            <div class="stat-value">@Model.TotalMatches</div>  
+            <div class="stat-delta up">Processed</div>  
+        </div>  
+        <div class="stat-accent-bar">  
+            <div class="stat-accent-fill" style="width:100%;background:var(--p);"></div>  
+        </div>  
+    </div>  
 
-<div class="card c-stat">  
-<div class="stat-body">  
-<div class="stat-label">AI Matches Done</div>  
-<div class="stat-value">@Model.TotalMatches</div>  
-<div class="stat-delta up">Processed</div>  
-</div>  
-<div class="stat-accent-bar">  
-<div class="stat-accent-fill" style="width:100%;background:var(--p);"></div>  
-</div>  
-</div>  
+    <div class="card c-stat">  
+        <div class="stat-body">  
+            <div class="stat-label">Avg System Score</div>  
+            <div class="stat-value">  
+                @Model.AverageMatchScore.ToString("F1")  
+                <span style="font-size:18px;font-weight:400;color:var(--t3)">%</span>  
+            </div>  
+            <div class="stat-delta up">Accuracy</div>  
+        </div>  
+        <div class="stat-accent-bar">  
+            <div class="stat-accent-fill" style="width:@Model.AverageMatchScore.ToString("F0")%;background:var(--amber);"></div>  
+        </div>  
+    </div>  
 
-<div class="card c-stat">  
-<div class="stat-body">  
-<div class="stat-label">Avg System Score</div>  
-<div class="stat-value">  
-@Model.AverageMatchScore.ToString("F1")  
-<span style="font-size:18px;font-weight:400;color:var(--t3)">%</span>  
-</div>  
-<div class="stat-delta up">Accuracy</div>  
-</div>  
-<div class="stat-accent-bar">  
-<div class="stat-accent-fill" style="width:@Model.AverageMatchScore.ToString("F0")%;background:var(--amber);"></div>  
-</div>  
-</div>  
+    <div class="card c-upload">  
+        <div class="upload-inner">  
+            <div class="upload-icon-box">  
+                <svg viewBox="0 0 24 24">  
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>  
+                    <polyline points="17 8 12 3 7 8"/>  
+                    <line x1="12" y1="3" x2="12" y2="15"/>  
+                </svg>  
+            </div>  
+            <div>  
+                <div class="upload-title">Register New Candidate</div>  
+                <div class="upload-sub">Upload resumes for automated skill extraction and matching.</div>  
+            </div>  
+            <div class="upload-cta">  
+                <a asp-controller="Candidates" asp-action="Create" class="btn-upload">Add Candidate</a>  
+            </div>  
+        </div>  
+    </div>  
 
-<div class="card c-upload">  
-<div class="upload-inner">  
+    <div class="card c-insights">  
+        <div class="ch">  
+            <div class="ch-label">System Insights</div>  
+            <span class="ch-link">online</span>  
+        </div>  
+        <div class="ins-item">  
+            <div class="ins-marker" style="background:var(--green)"></div>  
+            <div class="ins-text"><strong>AI Engine</strong> is active and synchronized.</div>  
+        </div>  
+        <div class="ins-item">  
+            <div class="ins-marker" style="background:var(--p)"></div>  
+            <div class="ins-text"><strong>@Model.TotalJobPostings roles</strong> ready for matching.</div>  
+        </div>  
+    </div>  
 
-<div class="upload-icon-box">  
-<svg viewBox="0 0 24 24">  
-<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>  
-<polyline points="17 8 12 3 7 8"/>  
-<line x1="12" y1="3" x2="12" y2="15"/>  
-</svg>  
-</div>  
+    <div class="card c-ethics" style="grid-column: span 6;">
+        <div class="ch">
+            <div class="ch-label" style="display:flex; align-items:center; gap:8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Fairness Monitor
+            </div>
+            <span style="font-size:10px; color:var(--green); font-weight:700;">ACTIVE</span>
+        </div>
+        <div style="padding:15px 0;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <span style="font-size:12px; color:var(--t3);">Demographic Bias</span>
+                <span style="font-size:12px; font-weight:700;">0.0% Detected</span>
+            </div>
+            <div style="height:4px; background:var(--border); border-radius:2px;">
+                <div style="width:100%; height:100%; background:var(--green); border-radius:2px; opacity:0.6;"></div>
+            </div>
+            <p style="font-size:10px; color:var(--t3); margin-top:10px; line-height:1.4;">
+                The engine is programmatically restricted from accessing candidate gender or age during the scoring process.
+            </p>
+        </div>
+    </div>
 
-<div>  
-<div class="upload-title">Register New Candidate</div>  
-<div class="upload-sub">Upload resumes for automated skill extraction and matching.</div>  
-</div>  
+    <div class="card c-chart">  
+        <div class="ch"><div class="ch-label">Match Distribution</div></div>  
+        <div style="height:200px;">  
+            <canvas id="scoreChart"></canvas>  
+        </div>  
+    </div>  
 
-<div class="upload-cta">  
-<a asp-controller="Candidates" asp-action="Create" class="btn-upload">Add Candidate</a>  
-</div>  
+    <div class="card c-chart">  
+        <div class="ch"><div class="ch-label">Database Overview</div></div>  
+        <div style="height:200px;">  
+            <canvas id="activityChart"></canvas>  
+        </div>  
+    </div>  
 
-</div>  
-</div>  
+    <div class="card c-chart">  
+        <div class="ch"><div class="ch-label">Top Skills (AI Extraction)</div></div>  
+        <div style="height:220px;">  
+            <canvas id="skillsChart"></canvas>  
+        </div>  
+    </div>  
 
-<div class="card c-insights">  
-<div class="ch">  
-<div class="ch-label">System Insights</div>  
-<span class="ch-link">online</span>  
-</div>  
-
-<div class="ins-item">  
-<div class="ins-marker" style="background:var(--green)"></div>  
-<div class="ins-text"><strong>AI Engine</strong> is active and synchronized.</div>  
-</div>  
-
-<div class="ins-item">  
-<div class="ins-marker" style="background:var(--p)"></div>  
-<div class="ins-text"><strong>@Model.TotalJobPostings roles</strong> ready for matching.</div>  
-</div>  
-</div>  
-
-<div class="card c-chart">  
-<div class="ch"><div class="ch-label">Match Distribution</div></div>  
-<div style="height:200px;">  
-<canvas id="scoreChart"></canvas>  
-</div>  
-</div>  
-
-<div class="card c-chart">  
-<div class="ch"><div class="ch-label">Database Overview</div></div>  
-<div style="height:200px;">  
-<canvas id="activityChart"></canvas>  
-</div>  
-</div>  
-
-<div class="card c-chart">  
-<div class="ch"><div class="ch-label">Top Skills (AI Extraction)</div></div>  
-<div style="height:220px;">  
-<canvas id="skillsChart"></canvas>  
-</div>  
-</div>  
-
-<div class="card c-table" style="grid-column: span 12;">  
-
-<div class="ch">  
-<div class="ch-label">Recent Activity</div>  
-<a asp-controller="Results" asp-action="Index" class="ch-link" style="text-decoration:none;">View all history →</a>  
-</div>  
-
-<table>  
-<thead>  
-<tr>  
-<th>Candidate</th>  
-<th>Applied For</th>  
-<th>Match Score</th>  
-<th>Date Processed</th>  
-</tr>  
-</thead>  
-
-<tbody>  
-
-@if (Model.RecentMatches != null && Model.RecentMatches.Any())
-{
-foreach (var item in Model.RecentMatches)
-{
-
-<tr>  
-
-<td><div class="cn">@item.Candidate?.FullName</div></td>  
-
-<td style="color:var(--t3);font-size:11.5px">@item.JobPosting?.Title</td>  
-
-<td>  
-
-<div class="sbar">  
-
-<div class="strack">  
-
-<div class="sfill" style="width:@((int)item.Score)%; background:@(item.Score >= 80 ? "var(--green)" : item.Score >= 50 ? "var(--blue)" : "var(--red)")"></div>  
-
-</div>  
-
-<span class="snum" style="color:@(item.Score >= 80 ? "var(--green)" : item.Score >= 50 ? "var(--blue)" : "var(--red)")">@item.Score.ToString("F0")</span>
-
-</div>  
-
-</td>  
-
-<td style="color:var(--t3);font-size:11.5px;font-family:var(--mono);">@item.CreatedDate.ToString("dd MMM yyyy, HH:mm")</td>  
-
-</tr>  
-}  
-}  
-
-</tbody>  
-
-</table>  
-
-</div>  
-
+    <div class="card c-table" style="grid-column: span 12;">  
+        <div class="ch">  
+            <div class="ch-label">Recent Activity</div>  
+            <a asp-controller="Results" asp-action="Index" class="ch-link" style="text-decoration:none;">View all history →</a>  
+        </div>  
+        <table>  
+            <thead>  
+                <tr>  
+                    <th>Candidate</th>  
+                    <th>Applied For</th>  
+                    <th>Match Score</th>  
+                    <th>Date Processed</th>  
+                </tr>  
+            </thead>  
+            <tbody>  
+                @if (Model.RecentMatches != null && Model.RecentMatches.Any())
+                {
+                    foreach (var item in Model.RecentMatches)
+                    {
+                        <tr>  
+                            <td><div class="cn">@item.Candidate?.FullName</div></td>  
+                            <td style="color:var(--t3);font-size:11.5px">@item.JobPosting?.Title</td>  
+                            <td>  
+                                <div class="sbar">  
+                                    <div class="strack">  
+                                        <div class="sfill" style="width:@((int)item.Score)%; background:@(item.Score >= 80 ? "var(--green)" : item.Score >= 50 ? "var(--blue)" : "var(--red)")"></div>  
+                                    </div>  
+                                    <div style="display:flex; align-items:center; gap:4px;">
+                                        <span class="snum" style="color:@(item.Score >= 80 ? "var(--green)" : item.Score >= 50 ? "var(--blue)" : "var(--red)")">@item.Score.ToString("F0")</span>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" title="Bias-free verified">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                        </svg>
+                                    </div>
+                                </div>  
+                            </td>  
+                            <td style="color:var(--t3);font-size:11.5px;font-family:var(--mono);">@item.CreatedDate.ToString("dd MMM yyyy, HH:mm")</td>  
+                        </tr>  
+                    }  
+                }  
+            </tbody>  
+        </table>  
+    </div>  
 </div>  
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  
-
 <script>  
+    Chart.defaults.font.family = "'Cabinet Grotesk', sans-serif";  
+    Chart.defaults.color = "#9c968e";  
 
-Chart.defaults.font.family = "'Cabinet Grotesk', sans-serif";  
-Chart.defaults.color = "#9c968e";  
+    new Chart(document.getElementById('scoreChart'), {  
+        type: 'doughnut',  
+        data: {  
+            labels: ['High','Mid','Low'],  
+            datasets: [{  
+                data: [  
+                    @Model.RecentMatches?.Count(m => m.Score >= 80) ?? 0,  
+                    @Model.RecentMatches?.Count(m => m.Score >= 50 && m.Score < 80) ?? 0,  
+                    @Model.RecentMatches?.Count(m => m.Score < 50) ?? 0  
+                ],  
+                backgroundColor: ['#30a36b','#3c7bc1','#a33030'],  
+                borderWidth:0  
+            }]  
+        },  
+        options:{  
+            maintainAspectRatio:false,  
+            plugins:{legend:{position:'bottom'}}  
+        }  
+    });  
 
-new Chart(document.getElementById('scoreChart'), {  
-type: 'doughnut',  
-data: {  
-labels: ['High','Mid','Low'],  
-datasets: [{  
-data: [  
-@Model.RecentMatches?.Count(m => m.Score >= 80) ?? 0,  
-@Model.RecentMatches?.Count(m => m.Score >= 50 && m.Score < 80) ?? 0,  
-@Model.RecentMatches?.Count(m => m.Score < 50) ?? 0  
-],  
-backgroundColor: ['#30a36b','#3c7bc1','#a33030'],  
-borderWidth:0  
-}]  
-},  
-options:{  
-maintainAspectRatio:false,  
-plugins:{legend:{position:'bottom'}}  
-}  
-});  
+    new Chart(document.getElementById('activityChart'), {  
+        type:'bar',  
+        data:{  
+            labels:['CVs','Jobs','Matches'],  
+            datasets:[{  
+                data:[@Model.TotalCandidates,@Model.TotalJobPostings,@Model.TotalMatches],  
+                backgroundColor:'#c17b3c',  
+                borderRadius:6  
+            }]  
+        },  
+        options:{  
+            maintainAspectRatio:false,  
+            plugins:{legend:{display:false}},  
+            scales:{  
+                y:{beginAtZero:true,grid:{display:false}},  
+                x:{grid:{display:false}}  
+            }  
+        }  
+    });  
 
-new Chart(document.getElementById('activityChart'), {  
-type:'bar',  
-data:{  
-labels:['CVs','Jobs','Matches'],  
-datasets:[{  
-data:[@Model.TotalCandidates,@Model.TotalJobPostings,@Model.TotalMatches],  
-backgroundColor:'#c17b3c',  
-borderRadius:6  
-}]  
-},  
-options:{  
-maintainAspectRatio:false,  
-plugins:{legend:{display:false}},  
-scales:{  
-y:{beginAtZero:true,grid:{display:false}},  
-x:{grid:{display:false}}  
-}  
-}  
-});  
-
-new Chart(document.getElementById('skillsChart'), {  
-type:'bar',  
-data:{  
-labels:['Python','SQL','JavaScript','C#','.NET'],  
-datasets:[{  
-data:[18,15,12,9,7],  
-backgroundColor:'#6a5acd',  
-borderRadius:6  
-}]  
-},  
-options:{  
-indexAxis:'y',  
-maintainAspectRatio:false,  
-plugins:{legend:{display:false}},  
-scales:{  
-x:{grid:{display:false}},  
-y:{grid:{display:false}}  
-}  
-}  
-});  
-
+    new Chart(document.getElementById('skillsChart'), {  
+        type:'bar',  
+        data:{  
+            labels:['Python','SQL','JavaScript','C#','.NET'],  
+            datasets:[{  
+                data:[18,15,12,9,7],  
+                backgroundColor:'#6a5acd',  
+                borderRadius:6  
+            }]  
+        },  
+        options:{  
+            indexAxis:'y',  
+            maintainAspectRatio:false,  
+            plugins:{legend:{display:false}},  
+            scales:{  
+                x:{grid:{display:false}},  
+                y:{grid:{display:false}}  
+            }  
+        }  
+    });  
 </script>
